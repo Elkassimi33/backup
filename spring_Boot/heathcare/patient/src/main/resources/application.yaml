@@ -1,0 +1,63 @@
+spring:
+  application:
+    name:  patient
+  datasource:
+    username: postgres
+    password: 1111
+    url: jdbc:postgresql://localhost:5432/patient_service
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: "patientRegisteredEvent:com.rsi.patient.patient_service.events.published.PatientRegisteredEvent,emergencyTriggeredEvent:com.rsi.patient.patient_service.events.published.EmergencyTriggeredEvent"
+        retries: 3
+        acks: all
+        enable.idempotence: true
+    consumer:
+      group-id: patient-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping:  "doctorAssignedEvent:com.rsi.patient.patient_service.events.consumed.DoctorAssignedEvent,nurseAssignedEvent:com.rsi.patient.patient_service.events.consumed.NurseAssignedEvent"
+        enable.auto.commit: false
+        auto.offset.reset: earliest
+      max-poll-records: 10
+    listener:
+      ack-mode: manual_immediate
+
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        SQL: DEBUG
+#        type:
+#          descriptor:
+#            sql:
+#              BasicBinder: TRACE
+#    com:
+#      rsi:
+#        patient:
+#          patient_service: DEBUG
+#    org.springframework.kafka: INFO
+#    org.apache.kafka: WARN

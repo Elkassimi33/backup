@@ -1,0 +1,11 @@
+ Conclusion Et Perspectives
+
+Ce projet de fin d’études, réalisé au sein de la société GiantLink, avait pour objectif la réalisation d’un système de gestion de commande. Ce système vise à automatiser toutes les gestions nécessaires au centre d’appel GiantLink.
+Notre travail a consisté, dans un premier temps, à étudier les besoins du centre d’appel et essayer de mettre un plan simple et efficace pour optimiser au maximum possible notre application web. Dans une deuxième étape, nous avons abordé l’analyse et la modélisation des besoins fonctionnels à travers quelques diagrammes UML.
+Nous avons conçu et développé, par la suite, les interfaces graphiques servant à réaliser les fonctionnalités appropriées du système en utilisant une large gamme d’outils web tels que Le Framework Angular avec Spring Boot, TypeScript, SCSS … Ce stage nous a permis, d'approfondir nos connaissances et compétences en développement web et en conception et modélisation UML.
+Dans un délai relativement cours (deux mois), nous avons pu concevoir et réaliser un
+système d’information important caché derrière une application web simple et
+facilement exploitable. Il est pour l’instant prématuré de dire qu’il répond à toutes les attentes des utilisateurs, mais tous les tests que nous avons effectués confirment que notre système répond parfaitement aux exigences et besoins décrits dans le projet.
+Malgré la réalisation de tous les objectifs fixés au début du stage, il reste des améliorations qui peuvent être envisagées dans le futur tels que :
+✓L’amélioration du design de nos IHMs.
+✓Effectuer le maximum de tests de notre application afin de recenser et corriger d'éventuelles erreurs.

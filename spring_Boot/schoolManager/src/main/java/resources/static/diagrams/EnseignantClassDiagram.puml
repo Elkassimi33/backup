@@ -1,0 +1,57 @@
+@startuml
+!pragma layout smetana
+
+interface EnseignantService {
+    + getEnseignantByUserId(userId: Integer): EnseignantDto
+    + updateEnseignant(enseignantId: Integer, enseignantDto: EnseignantDto, file: MultipartFile): EnseignantDto
+    + modulesTaughtThisYear(enseignantId: Integer): List<Module>
+    + getDepartementEnseignant(departementNam: String): List<EnseignantDto>
+    + findByStatut(statut: Enseignant.StatutEnseignant): List<EnseignantDto>
+    + findBySpecialiteContainingIgnoreCase(specialite: String): List<EnseignantDto>
+    + getAllEnseignants(): List<EnseignantDto>
+}
+
+class EnseignantServiceImpl {
+    - enseignantRepository: EnseignantRepository
+    - fileService: FileService
+    - departementRepository: DepartementRepository
+    - userRepository: UserRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    - moduleRepository: ModuleRepository
+    - filiereRepository: FiliereRepository
+    - path: String
+    - baseUrl: String
+    + getEnseignantByUserId(userId: Integer): EnseignantDto
+    + updateEnseignant(enseignantId: Integer, enseignantDto: EnseignantDto, file: MultipartFile): EnseignantDto
+    + modulesTaughtThisYear(enseignantId: Integer): List<Module>
+    + getDepartementEnseignant(departementNam: String): List<EnseignantDto>
+    + findByStatut(statut: Enseignant.StatutEnseignant): List<EnseignantDto>
+    + findBySpecialiteContainingIgnoreCase(specialite: String): List<EnseignantDto>
+    + getAllEnseignants(): List<EnseignantDto>
+    + filiereDerige(enseingantId: Integer): List<Filiere>
+    - mapToEnseignantDto(enseignant: Enseignant): EnseignantDto
+}
+
+interface EnseignantRepository {
+    + findByTelephone(telephone: String): Optional<Enseignant>
+    + findByUser_Id(userId: Integer): Optional<Enseignant>
+    + findByUser_Email(email: String): Optional<Enseignant>
+    + findByDepartement_DepartementId(departementId: Integer): List<Enseignant>
+    + findByStatut(statut: Enseignant.StatutEnseignant): List<Enseignant>
+    + findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase(searchTerm: String, searchTerm2: String): List<Enseignant>
+    + findBySpecialiteContainingIgnoreCase(specialite: String): List<Enseignant>
+    + countByDepartement_DepartementId(departementId: Integer): long
+}
+
+EnseignantService <|.. EnseignantServiceImpl
+EnseignantServiceImpl ..> EnseignantRepository : uses
+EnseignantServiceImpl ..> FileService : uses
+EnseignantServiceImpl ..> DepartementRepository : uses
+EnseignantServiceImpl ..> UserRepository : uses
+EnseignantServiceImpl ..> AnneeUniversitaireRepository : uses
+EnseignantServiceImpl ..> ModuleRepository : uses
+EnseignantServiceImpl ..> FiliereRepository : uses
+
+EnseignantRepository <|-- JpaRepository
+
+@enduml 

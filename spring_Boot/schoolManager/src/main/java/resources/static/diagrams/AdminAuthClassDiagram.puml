@@ -1,0 +1,87 @@
+@startuml
+!pragma layout smetana
+
+interface AdminService {
+    + addEtudiant(email: String, nom: String, prenom: String, filiereId: Integer, semester: Module.Semester): User
+    + addEnseignant(email: String, nom: String, prenom: String, departementNom: String, statut: Enseignant.StatutEnseignant, grade: String, specialite: String, isFiliereChef: Boolean): User
+    + addAdmin(email: String, nom: String, prenom: String, specialite: String, grade: String): User
+    + updateAdmin(adminId: Integer, adminDto: AdminDto): AdminDto
+    + getAllAdmins(): List<AdminDto>
+    + getAdminBYUserId(userId: Integer): AdminDto
+}
+
+class AdminServiceImpl {
+    - userRepository: UserRepository
+    - roleRepository: RoleRepository
+    - etudiantRepository: EtudiantRepository
+    - enseignantRepository: EnseignantRepository
+    - adminRepository: AdminRepository
+    - passwordEncoder: PasswordEncoder
+    - mailSender: JavaMailSender
+    - filiereRepository: FiliereRepository
+    - departementRepository: DepartementRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    + addEtudiant(email: String, nom: String, prenom: String, filiereId: Integer, semester: Module.Semester): User
+    + addEnseignant(email: String, nom: String, prenom: String, departementNom: String, statut: Enseignant.StatutEnseignant, grade: String, specialite: String, isFiliereChef: Boolean): User
+    + addAdmin(email: String, nom: String, prenom: String, specialite: String, grade: String): User
+    + getAllAdmins(): List<AdminDto>
+    + getAdminBYUserId(userId: Integer): AdminDto
+    + updateAdmin(adminId: Integer, adminDto: AdminDto): AdminDto
+    - generateUsername(nom: String, prenom: String): String
+    - generatePassword(): String
+    - generateUniversityEmail(username: String): String
+    - sendCredentialsEmail(email: String, username: String, password: String, universityEmail: String): void
+}
+
+interface AdminRepository {
+    + findByTelephone(telephone: String): Optional<Admin>
+    + findByUser_Id(userId: Integer): Optional<Admin>
+    + findByUser_Email(email: String): Optional<Admin>
+    + findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase(searchTerm: String, searchTerm2: String): List<Admin>
+}
+
+class AuthService {
+    - passwordEncoder: PasswordEncoder
+    - userRepository: UserRepository
+    - jwtService: JwtService
+    - refreshTokenService: RefreshTokenService
+    - refreshTokenRepository: RefreshTokenRepository
+    - authenticationManager: AuthenticationManager
+    - mailSender: JavaMailSender
+    + login(loginRequest: LoginRequest): AuthResponse
+    + logout(refreshToken: String): void
+    + requestPasswordReset(email: String): void
+    + resetPassword(request: PasswordResetRequest): void
+    + unlockAccount(username: String): void
+}
+
+interface UserRepository {
+    + findByUsername(username: String): Optional<User>
+    + findById(userId: User): Optional<User>
+    + findByEmail(email: String): Optional<User>
+    + existsByEmail(email: String): boolean
+    + existsByUsername(username: String): boolean
+    + findByPasswordResetToken(token: String): Optional<User>
+}
+
+AdminService <|.. AdminServiceImpl
+AdminServiceImpl ..> AdminRepository : uses
+AdminServiceImpl ..> UserRepository : uses
+AdminServiceImpl ..> RoleRepository : uses
+AdminServiceImpl ..> EtudiantRepository : uses
+AdminServiceImpl ..> EnseignantRepository : uses
+AdminServiceImpl ..> FiliereRepository : uses
+AdminServiceImpl ..> DepartementRepository : uses
+AdminServiceImpl ..> AnneeUniversitaireRepository : uses
+
+AuthService ..> UserRepository : uses
+AuthService ..> RefreshTokenRepository : uses
+AuthService ..> JwtService : uses
+AuthService ..> RefreshTokenService : uses
+AuthService ..> AuthenticationManager : uses
+AuthService ..> JavaMailSender : uses
+
+UserRepository <|-- JpaRepository
+AdminRepository <|-- JpaRepository
+
+@enduml 

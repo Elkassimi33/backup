@@ -1,0 +1,48 @@
+@startuml
+|Enseignant|
+start
+:Se connecter au système;
+
+|Système|
+:Vérifier les droits d'accès;
+
+if (Accès autorisé?) then (non)
+  :Afficher message d'erreur;
+  stop
+else (oui)
+  |Enseignant|
+  :Accéder à la gestion des notes;
+  :Consulter la liste de ses modules enseignés;
+
+  repeat
+    :Sélectionner un module;
+    :Sélectionner un étudiant;
+    :Saisir la note pour l'étudiant;
+    note right
+      Vérifier le format et la plage de la note.
+    end note
+
+    |Système|
+    :Valider la note saisie;
+
+    if (Note valide?) then (non)
+      :Afficher les erreurs de validation;
+      |Enseignant|
+      :Corriger la note;
+    endif
+  repeat while (Note valide?)
+
+  |Système|
+  :Enregistrer la note dans la base de données;
+  :Envoyer un email à l'étudiant avec sa note;
+
+  |Enseignant|
+  :Confirmer l'ajout;
+  :Recevoir confirmation du système;
+
+  |Système|
+  :Afficher message de succès;
+endif
+
+stop
+@enduml 

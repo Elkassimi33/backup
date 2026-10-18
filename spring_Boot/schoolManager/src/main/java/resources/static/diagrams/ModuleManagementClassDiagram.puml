@@ -1,0 +1,60 @@
+@startuml
+!pragma layout smetana
+
+interface ModuleSevice {
+    + insertModule(moduleDto: ModuleDto): void
+    + insertModules(moduleDtos: List<ModuleDto>): void
+    + updateModule(moduleId: Long, moduleDto: ModuleDto): ModuleDto
+    + getModulesById(moduleId: Long): ModuleDto
+    + deleteModule(moduleId: Long): void
+    + getModulesByEnseignant(enseignantId: Integer): List<ModuleDto>
+    + getModulesByDepartement(departementId: Integer): List<ModuleDto>
+    + getModulesByFiliere(filiereId: Integer): List<ModuleDto>
+    + getAllModules(): List<ModuleDto>
+}
+
+class ModuleSeviceImpl {
+    - moduleRepository: ModuleRepository
+    - filiereRepository: FiliereRepository
+    - enseignantRepository: EnseignantRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    - departementRepository: DepartementRepository
+    + insertModule(moduleDto: ModuleDto): void
+    + insertModules(moduleDtos: List<ModuleDto>): void
+    + updateModule(moduleId: Long, moduleDto: ModuleDto): ModuleDto
+    + getModulesById(moduleId: Long): ModuleDto
+    + deleteModule(moduleId: Long): void
+    + getModulesByEnseignant(enseignantId: Integer): List<ModuleDto>
+    + getModulesByDepartement(departementId: Integer): List<ModuleDto>
+    + getModulesByFiliere(filiereId: Integer): List<ModuleDto>
+    + getAllModules(): List<ModuleDto>
+    - mapToModule(moduleDto: ModuleDto): Module
+    - mapToDto(module: Module): ModuleDto
+}
+
+interface ModuleRepository {
+    + findByCodeModule(codeModule: String): Optional<Module>
+    + findByNomModuleContainingIgnoreCase(nomModule: String): List<Module>
+    + findByFiliere_FiliereId(filiereId: Integer): List<Module>
+    + findByEnseignant_EnseignantId(enseignantId: Integer): List<Module>
+    + findByAnneeUniversitaire_AnneeIdAndEnseignant_EnseignantId(anneeUniversitaireId: Integer, enseignantId: Integer): List<Module>
+    + findBySemester(semester: Module.Semester): List<Module>
+    + findByAnneeUniversitaire_AnneeIdAndFiliere_FiliereId(anneeId: Integer, filiereId: Integer): List<Module>
+    + findByAnneeUniversitaire_AnneeIdAndEnseignant_EnseignantIdIn(anneeId: Integer, enseignantIds: List<Integer>): List<Module>
+    + findByAnneeUniversitaire_AnneeId(anneeUniversitaireId: Integer): List<Module>
+    + findByHasTp(hasTp: boolean): List<Module>
+    + findBySemesterAndFiliere_FiliereId(semester: Module.Semester, filiereId: Integer): List<Module>
+    + findBySemesterAndFiliere_FiliereIdAndAnneeUniversitaire_AnneeId(semester: Module.Semester, filiereId: Integer, anneeId: Integer): List<Module>
+    + existsByCodeModule(codeModule: String): boolean
+}
+
+ModuleSevice <|.. ModuleSeviceImpl
+ModuleSeviceImpl ..> ModuleRepository : uses
+ModuleSeviceImpl ..> FiliereRepository : uses
+ModuleSeviceImpl ..> EnseignantRepository : uses
+ModuleSeviceImpl ..> AnneeUniversitaireRepository : uses
+ModuleSeviceImpl ..> DepartementRepository : uses
+
+ModuleRepository <|-- JpaRepository
+
+@enduml 

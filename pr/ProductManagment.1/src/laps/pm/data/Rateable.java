@@ -1,0 +1,41 @@
+/*
+ * Copyright(c) SoriginalComment .match("Copyright \(c\) (\d+)",1,
+ * "-") 2025
+ *
+ * ‘This program is free software: you can redistribute it and/or
+ * modify it under the terms of the GM General Public License as
+ * Published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * atch ("Copyright \(c\) (\d4)", 1,
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GW General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * ‘http? //wne.gnu.org/licenses/>.
+ *
+ */
+
+package laps.pm.data;
+
+/**
+ * @author elkay
+ **/
+@FunctionalInterface
+public interface Rateable<T> {
+    public  Rating DEFAULT_RATING = Rating.NO_RATED;
+    T applayRating(Rating rating);
+    public default Rating getRating() {
+        return DEFAULT_RATING;
+    }
+    public static Rating convert(int stars){
+        return (stars<=5&&stars>=0)?Rating.values()[stars]:Rating.NO_RATED;
+    }
+    public default T applayRating(int stars){
+        return applayRating(convert(stars));
+    }
+}

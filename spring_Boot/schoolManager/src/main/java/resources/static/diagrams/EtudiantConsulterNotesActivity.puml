@@ -1,0 +1,25 @@
+@startuml
+|Étudiant|
+start
+:Se connecter au système;
+
+|Système|
+:Vérifier les droits d'accès;
+
+if (Accès autorisé?) then (non)
+  :Afficher message d'erreur;
+  stop
+else (oui)
+  |Étudiant|
+  :Accéder à la section "Mes notes";
+
+  |Système|
+  :Récupérer les notes de l'étudiant;
+  :Afficher les notes à l'étudiant;
+
+  |Étudiant|
+  :Consulter ses notes;
+endif
+
+stop
+@enduml 

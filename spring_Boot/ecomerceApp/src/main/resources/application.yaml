@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: ecomerceApp
+
+  datasource:
+    url: jdbc:mysql:\\localhost:3333\ecomerce?CreateDatabaseIfNotExist=true
+    username: root
+    password: 1111
+    driver-class-name: com.mysql.jdbc.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+

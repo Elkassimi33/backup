@@ -1,0 +1,70 @@
+@startuml
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Chef de Filière" as CF
+actor "Enseignant" as ENS
+
+rectangle "Système de Gestion Scolaire" {
+    ' Cas d'utilisation Chef de Filière
+    usecase "Gérer les modules de la filière" as UC1
+    usecase "Consulter liste des modules" as UC1_1
+    usecase "Assigner enseignants aux modules" as UC1_2
+    usecase "Valider les notes des modules" as UC1_3
+
+    usecase "Gérer les étudiants de la filière" as UC2
+    usecase "Consulter liste des étudiants" as UC2_1
+    usecase "Consulter résultats globaux" as UC2_2
+
+    usecase "Gérer l'emploi du temps" as UC3
+    usecase "Consulter emploi du temps" as UC3_1
+    usecase "Valider emploi du temps" as UC3_2
+
+    ' Cas d'utilisation Enseignant
+    usecase "Gérer les modules" as UC4
+    usecase "Consulter liste des modules enseignés" as UC4_1
+
+    usecase "Gérer les notes" as UC5
+    usecase "Lister les notes" as UC5_1
+    usecase "Ajouter des notes" as UC5_2
+    usecase "Modifier des notes" as UC5_3
+
+    usecase "Gérer les présences" as UC6
+    usecase "Lister les présences" as UC6_1
+
+    usecase "Consulter emploi du temps" as UC7
+
+    usecase "Consulter informations étudiants" as UC8
+}
+
+' Relations Chef de Filière
+CF --> UC1
+CF --> UC2
+CF --> UC3
+
+UC1 ..> UC1_1 : <<include>>
+UC1 ..> UC1_2 : <<include>>
+UC1 ..> UC1_3 : <<include>>
+
+UC2 ..> UC2_1 : <<include>>
+UC2 ..> UC2_2 : <<include>>
+
+UC3 ..> UC3_1 : <<include>>
+UC3 ..> UC3_2 : <<include>>
+
+' Relations Enseignant
+ENS --> UC4
+ENS --> UC5
+ENS --> UC6
+ENS --> UC7
+ENS --> UC8
+
+UC4 ..> UC4_1 : <<include>>
+
+UC5 ..> UC5_1 : <<include>>
+UC5 ..> UC5_2 : <<include>>
+UC5 ..> UC5_3 : <<include>>
+
+UC6 ..> UC6_1 : <<include>>
+
+@enduml 

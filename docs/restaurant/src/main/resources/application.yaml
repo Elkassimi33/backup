@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: restaurant
+
+  datasource:
+    url: jdbc:mysql://localhost:3333/restaurant?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    username: root
+    password: 1111
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true

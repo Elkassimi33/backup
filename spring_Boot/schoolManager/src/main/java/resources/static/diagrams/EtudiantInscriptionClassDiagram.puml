@@ -1,0 +1,115 @@
+@startuml
+!pragma layout smetana
+
+interface EtudianService {
+    + getEtudiant(userId: Integer): EtudiantDto
+    + getAllFiliereEtudiant(filiereId: Integer): List<EtudiantDto>
+    + updateEtudiant(EtudiantId: Integer, etudiantDto: EtudiantDto, file: MultipartFile): EtudiantDto
+    + getAllEtudiantFiliereWithPagination(pageNumber: Integer, pageSize: Integer, filiereId: Integer): EtudiantPageResponse
+    + getAllEtudiantFiliereWithPaginationAndSorting(pageNumber: Integer, pageSize: Integer, sortBy: String, dir: String, filiereId: Integer): EtudiantPageResponse
+    + etudiantsInscrireAuModule(moduleID: Integer, filiereId: Integer, semester: Module.Semester): List<EtudiantNoteDto>
+    + etudiantsByFiliereAndSemestre(filiereNom: String, semester: Module.Semester): List<EtudiantDto>
+    + generateCertificatScolairePdf(userId: Integer): byte[]
+    + generateConvocationExamenPdf(userId: Integer, moduleName: String, dateExamen: String, heureExamen: String, salle: String): byte[]
+}
+
+class EtudiantServiceImpl {
+    - etudiantRepository: EtudiantRepository
+    - fileService: FileService
+    - userRepository: UserRepository
+    - filiereRepository: FiliereRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    - path: String
+    - baseUrl: String
+    + getEtudiant(userId: Integer): EtudiantDto
+    + getAllFiliereEtudiant(filiereId: Integer): List<EtudiantDto>
+    + updateEtudiant(codeApj: Integer, etudiantDto: EtudiantDto, file: MultipartFile): EtudiantDto
+    + getAllEtudiantFiliereWithPagination(pageNumber: Integer, pageSize: Integer, filiereId: Integer): EtudiantPageResponse
+    + getAllEtudiantFiliereWithPaginationAndSorting(pageNumber: Integer, pageSize: Integer, sortBy: String, dir: String, filiereId: Integer): EtudiantPageResponse
+    + etudiantsInscrireAuModule(moduleID: Integer, filiereId: Integer, semester: Module.Semester): List<EtudiantNoteDto>
+    + etudiantsByFiliereAndSemestre(filiereNom: String, semester: Module.Semester): List<EtudiantDto>
+    + generateCertificatScolairePdf(userId: Integer): byte[]
+    + generateConvocationExamenPdf(userId: Integer, moduleName: String, dateExamen: String, heureExamen: String, salle: String): byte[]
+    - mapToEtudiantDto(etudiant: Etudiant): EtudiantDto
+    - createBoldLabel(label: String, boldFont: Font): String
+    - formatStudentName(nom: String, prenom: String): String
+    - capitalizeWords(input: String): String
+    - formatDate(date: LocalDate): String
+    - buildAcademicInfo(etudiant: Etudiant): String
+    - getAcademicYearString(anneeUniversitaire: AnneeUniversitaire): String
+    - formatSemester(semester: Module.Semester): String
+}
+
+interface EtudiantRepository {
+    + findByCne(cne: String): Optional<Etudiant>
+    + findByUserId_Id(userId: Integer): Optional<Etudiant>
+    + findByUserId_Email(email: String): Optional<Etudiant>
+    + findByFiliereID_FiliereId(filiereId: Integer): List<Etudiant>
+    + findByFiliereID_FiliereId(filiereId: Integer, pageable: Pageable): Page<Etudiant>
+    + findByAnneeActuelle(annee: Integer): List<Etudiant>
+    + findByStatut(statut: Etudiant.StatutEtudiant): List<Etudiant>
+    + findByStatutAndSemester(statut: Etudiant.StatutEtudiant, semester: Module.Semester): List<Etudiant>
+    + findBySemester(semester: Module.Semester): List<Etudiant>
+    + findBySemesterAndAnneeUniversitaire_AnneeId(semester: Module.Semester, anneeUniversitaireId: Integer): List<Etudiant>
+    + findByFiliereID_FiliereIdAndAnneeUniversitaire_AnneeId(filiereID: Integer, anneeUniversitaireId: Integer): List<Etudiant>
+    + findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase(searchTerm: String, searchTerm2: String): List<Etudiant>
+    + findByAnneeUniversitaire_AnneeId(anneeUniversitaireId: Integer): List<Etudiant>
+    + findNormalOrRepeatingStudentsInFiliereAndSemester(idFiliere: Integer, semester: Module.Semester): List<Etudiant>
+    + findByFiliereID_FiliereIdAndStatutAndAnneeUniversitaire_AnneeIdAndSemester(filierId: Integer, statutEtudiant: Etudiant.StatutEtudiant, anneeId: Integer, semester: Module.Semester): List<Etudiant>
+    + findReserveOrPartialRepeatingStudentsInFiliereAndModule(idFiliere: Integer, idModule: Integer): List<Etudiant>
+    + findByDateNaissanceBetween(startDate: LocalDate, endDate: LocalDate): List<Etudiant>
+    + countByFiliereID_FiliereIdAndStatut(filiereId: Integer, statut: Etudiant.StatutEtudiant): long
+    + existsByCne(cne: String): boolean
+    + findByFiliereID_FiliereIdAndAnneeUniversitaire_AnneeIdAndSemester(filiereId: Integer, anneeId: Integer, semester: Module.Semester): List<Etudiant>
+}
+
+interface InscriptionService {
+    + createInscription(etudiantId: Integer, anneeId: Integer, filiereId: Integer): Inscription
+    + getInscription(etudiantId: Integer, anneeId: Integer): Inscription
+    + getStudentInscriptions(etudiantId: Integer): List<Inscription>
+    + getYearInscriptions(anneeId: Integer): List<Inscription>
+    + isStudentEnrolled(etudiantId: Integer, anneeId: Integer): boolean
+}
+
+class InscriptionServiceImpl {
+    - inscriptionRepository: InscriptionRepository
+    - etudiantRepository: EtudiantRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    - filiereRepository: FiliereRepository
+    - filiereSemesterRepository: FiliereSemesterRepository
+    + createInscription(etudiantId: Integer, anneeId: Integer, filiereId: Integer): Inscription
+    + getInscription(etudiantId: Integer, anneeId: Integer): Inscription
+    + getStudentInscriptions(etudiantId: Integer): List<Inscription>
+    + getYearInscriptions(anneeId: Integer): List<Inscription>
+    + isStudentEnrolled(etudiantId: Integer, anneeId: Integer): boolean
+    - updateStudentForNewFiliere(etudiant: Etudiant, filiereId: Integer): void
+}
+
+interface InscriptionRepository {
+    + findByEtudiant_CodeApjAndAnneeUniversitaire_AnneeId(codeApj: Integer, anneeId: Integer): Optional<Inscription>
+    + findByEtudiant_CodeApj(codeApj: Integer): List<Inscription>
+    + findByFiliere_FiliereIdAndAnneeUniversitaire_AnneeId(filiereId: Integer, anneeUniversitaireId: Integer): List<Inscription>
+    + findByAnneeUniversitaire_AnneeId(anneeId: Integer): List<Inscription>
+    + findByStatut(statut: Inscription.StatutInscription): List<Inscription>
+    + countByFiliere_FiliereIdAndAnneeUniversitaire_AnneeId(filiereId: Integer, anneeUniversitaireId: Integer): long
+    + existsByEtudiant_CodeApjAndAnneeUniversitaire_AnneeId(codeApj: Integer, anneeId: Integer): boolean
+}
+
+EtudianService <|.. EtudiantServiceImpl
+EtudiantServiceImpl ..> EtudiantRepository : uses
+EtudiantServiceImpl ..> FileService : uses
+EtudiantServiceImpl ..> UserRepository : uses
+EtudiantServiceImpl ..> FiliereRepository : uses
+EtudiantServiceImpl ..> AnneeUniversitaireRepository : uses
+
+InscriptionService <|.. InscriptionServiceImpl
+InscriptionServiceImpl ..> InscriptionRepository : uses
+InscriptionServiceImpl ..> EtudiantRepository : uses
+InscriptionServiceImpl ..> AnneeUniversitaireRepository : uses
+InscriptionServiceImpl ..> FiliereRepository : uses
+InscriptionServiceImpl ..> FiliereSemesterRepository : uses
+
+EtudiantRepository <|-- JpaRepository
+InscriptionRepository <|-- JpaRepository
+
+@enduml 

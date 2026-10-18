@@ -1,0 +1,3 @@
+module useModuel {
+    requires module;
+}

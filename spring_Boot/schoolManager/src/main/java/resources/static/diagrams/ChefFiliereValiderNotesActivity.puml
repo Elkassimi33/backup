@@ -1,0 +1,44 @@
+@startuml
+|Chef de Filière|
+start
+:Se connecter au système;
+
+|Système|
+:Vérifier les droits d'accès;
+
+if (Accès autorisé?) then (non)
+  :Afficher message d'erreur;
+  stop
+else (oui)
+  |Chef de Filière|
+  :Accéder à la gestion des notes de sa filière;
+  :Consulter la liste des modules de sa filière;
+
+  repeat
+    :Sélectionner un module;
+    :Consulter les notes des étudiants pour ce module;
+    :Vérifier la conformité des notes;
+
+    |Système|
+    :Permettre la validation ou le rejet;
+
+    if (Notes conformes et validées?) then (non)
+      :Signaler les non-conformités ou rejeter la validation;
+      |Chef de Filière|
+      :Demander des corrections ou réévaluer;
+    endif
+  repeat while (Notes non validées ou nécessitant correction)
+
+  |Système|
+  :Enregistrer la validation des notes;
+
+  |Chef de Filière|
+  :Confirmer la validation;
+  :Recevoir confirmation du système;
+
+  |Système|
+  :Afficher message de succès;
+endif
+
+stop
+@enduml 

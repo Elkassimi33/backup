@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: patient-service
+
+  datasource:
+    username: root
+    password: 1111
+    url: jdbc:mysql://localhost:3333/patient
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true

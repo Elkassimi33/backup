@@ -1,0 +1,143 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class User {
+    + id: Long
+    + username: String
+    + password: String
+    + email: String
+    + timestamp: Date
+}
+
+class Role {
+    + id: Integer
+    + name: String
+}
+
+class RefreshToken {
+    + id: Long
+    + token: String
+    + expiryDate: Date
+}
+
+class Administrateur {
+    + id: Long
+    + role: String = "ADMIN"
+}
+
+class Enseignant {
+    + id: Long
+    + firstName: String
+    + lastName: String
+    + specialite: String
+    + statut: String
+}
+
+class ChefDeFiliere {
+    + id: Long
+    + role: String = "CHEF_FILIERE"
+}
+
+class Etudiant {
+    + id: Long
+    + firstName: String
+    + lastName: String
+    + dateNaissance: Date
+    + cne: String
+}
+
+class Departement {
+    + id: Long
+    + nomDepartement: String
+    + description: String
+}
+
+class Filiere {
+    + id: Long
+    + nomFiliere: String
+    + description: String
+}
+
+class Module {
+    + id: Long
+    + nomModule: String
+    + description: String
+    + coefficient: int
+}
+
+class Note {
+    + id: Long
+    + valeur: Float
+    + dateSaisie: Date
+}
+
+class Presence {
+    + id: Long
+    + date: Date
+    + present: Boolean
+}
+
+class EmploiDuTemps {
+    + id: Long
+    + date: Date
+    + heureDebut: String
+    + heureFin: String
+}
+
+class Salle {
+    + id: Long
+    + nomSalle: String
+    + capacite: int
+    + type: String
+}
+
+class Inscription {
+    + id: Long
+    + dateInscription: Date
+}
+
+class AnneeUniversitaire {
+    + id: Long
+    + anneeDebut: int
+    + anneeFin: int
+    + libelle: String
+}
+
+'Inheritance
+User <|-- Administrateur
+User <|-- Enseignant
+Enseignant <|-- ChefDeFiliere
+User <|-- Etudiant
+
+'Associations
+User "1" -- "*" Role : a_des_roles
+RefreshToken "1" -- "1" User : est_pour
+
+Departement "1" *-- "1..*" Filiere : contient
+Departement "1" *-- "1..*" Enseignant : emploie
+
+Filiere "1" *-- "1..*" Module : possède
+Filiere "1" -- "1" ChefDeFiliere : est_gérée_par
+
+Module "1" -- "*" Enseignant : enseigné_par >
+Enseignant "1" -- "1..*" Module : enseigne >
+
+Etudiant "1" -- "1" Filiere : est_inscrit_à >
+Etudiant "1" -- "1..*" Inscription : a >
+Inscription "1" -- "1" AnneeUniversitaire : pour >
+Inscription "1" -- "1" Etudiant : concerne >
+Inscription "1" -- "1" Filiere : dans_la_filière >
+
+Note "1" -- "1" Etudiant : concerne >
+Note "1" -- "1" Module : pour >
+Note "1" -- "1" Enseignant : saisie_par >
+
+Presence "1" -- "1" Etudiant : concerne >
+Presence "1" -- "1" Module : pour >
+Presence "1" -- "1" Enseignant : enregistrée_par >
+
+EmploiDuTemps "1" -- "1" Salle : se_déroule_dans >
+EmploiDuTemps "1" -- "1" Module : pour >
+EmploiDuTemps "1" -- "1" Enseignant : donné_par >
+EmploiDuTemps "1" -- "1" Filiere : pour_la_filière >
+@enduml 

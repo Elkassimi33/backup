@@ -1,0 +1,114 @@
+@startuml
+!pragma layout smetana
+
+interface AnneeUniversitaireService {
+    + createAnneeUniversitaire(anneeUniversitaire: AnneeUniversitaire): AnneeUniversitaire
+    + updateAnneeUniversitaire(anneeId: Integer, anneeUniversitaire: AnneeUniversitaire): AnneeUniversitaire
+    + deleteAnneeUniversitaire(anneeId: Integer): void
+    + getAnneeUniversitaireById(anneeId: Integer): AnneeUniversitaire
+    + getAllAnneesUniversitaires(): List<AnneeUniversitaire>
+    + getCurrentAnneeUniversitaire(): AnneeUniversitaire
+    + setCurrentAnneeUniversitaire(anneeId: Integer): void
+}
+
+class AnneeUniversitaireServiceImpl {
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    + createAnneeUniversitaire(anneeUniversitaire: AnneeUniversitaire): AnneeUniversitaire
+    + updateAnneeUniversitaire(anneeId: Integer, anneeUniversitaire: AnneeUniversitaire): AnneeUniversitaire
+    + deleteAnneeUniversitaire(anneeId: Integer): void
+    + getAnneeUniversitaireById(anneeId: Integer): AnneeUniversitaire
+    + getAllAnneesUniversitaires(): List<AnneeUniversitaire>
+    + getCurrentAnneeUniversitaire(): AnneeUniversitaire
+    + setCurrentAnneeUniversitaire(anneeId: Integer): void
+}
+
+interface AnneeUniversitaireRepository {
+    + findByAnnee(annee: String): Optional<AnneeUniversitaire>
+    + findByAnneeCouranteIsTrue(): Optional<AnneeUniversitaire>
+    + existsByAnnee(annee: String): boolean
+    + countByAnneeCouranteIsTrue(): long
+}
+
+interface EmploiDuTempsService {
+    + createEmploiDuTemps(dto: EmploiDuTempsDto): EmploiDuTempsDto
+    + updateEmploiDuTemps(id: Long, dto: EmploiDuTempsDto): EmploiDuTempsDto
+    + deleteEmploiDuTemps(id: Long): void
+    + getEmploiDuTempsByModule(moduleId: Long): List<EmploiDuTempsDto>
+    + getEmploiDuTempsBySalle(salleId: Integer): List<EmploiDuTempsDto>
+    + getEmploiDuTempsByJour(jour: DayOfWeek): List<EmploiDuTempsDto>
+}
+
+class EmploiDuTempsServiceImpl {
+    - emploiDuTempsRepository: EmploiDuTempsRepository
+    - moduleRepository: ModuleRepository
+    - salleRepository: SalleRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    + createEmploiDuTemps(dto: EmploiDuTempsDto): EmploiDuTempsDto
+    + updateEmploiDuTemps(id: Long, dto: EmploiDuTempsDto): EmploiDuTempsDto
+    + deleteEmploiDuTemps(id: Long): void
+    + getEmploiDuTempsByModule(moduleId: Long): List<EmploiDuTempsDto>
+    + getEmploiDuTempsBySalle(salleId: Integer): List<EmploiDuTempsDto>
+    + getEmploiDuTempsByJour(jour: DayOfWeek): List<EmploiDuTempsDto>
+    - validateSchedule(dto: EmploiDuTempsDto): void
+    - isValidSessionType(type: String): boolean
+    - mapToEntity(dto: EmploiDuTempsDto): EmploiDuTemps
+    - mapToDto(emploiDuTemps: EmploiDuTemps): EmploiDuTempsDto
+    - updateEntity(entity: EmploiDuTemps, dto: EmploiDuTempsDto): void
+}
+
+interface EmploiDuTempsRepository {
+    + findByModule_IdModuleAndAnneeUniversitaire_AnneeId(moduleId: Long, anneeUniversitaireId: Integer): List<EmploiDuTemps>
+    + findBySalle_IdAndAnneeUniversitaire_AnneeId(salleId: Integer, anneeUniversitaireId: Integer): List<EmploiDuTemps>
+    + findByJourAndAnneeUniversitaire_AnneeId(jour: DayOfWeek, anneeUniversitaireId: Integer): List<EmploiDuTemps>
+    + findBySalleAndJourAndHeureDebutLessThanEqualAndHeureFinGreaterThanEqual(salle: Salle, jour: DayOfWeek, heureFin: LocalTime, heureDebut: LocalTime): List<EmploiDuTemps>
+}
+
+interface SalleService {
+    + createSalle(salleDto: SalleDto): Salle
+    + updateSalle(salleId: Integer, salleDto: SalleDto): Salle
+    + deleteSalle(salleId: Integer): void
+    + getSalleById(salleId: Integer): Salle
+    + getAllSalles(): List<Salle>
+    + getAvailableSallesByCapacity(capacity: Integer): List<Salle>
+}
+
+class SalleServiceImpl {
+    - salleRepository: SalleRepository
+    + createSalle(salleDto: SalleDto): Salle
+    + updateSalle(salleId: Integer, salleDto: SalleDto): Salle
+    + deleteSalle(salleId: Integer): void
+    + getSalleById(salleId: Integer): Salle
+    + getAllSalles(): List<Salle>
+    + getAvailableSallesByCapacity(capacity: Integer): List<Salle>
+    - mapToEntity(dto: SalleDto): Salle
+}
+
+interface SalleRepository {
+    + findByNom(nom: String): Optional<Salle>
+    + findByCodeSalle(codeSalle: String): Optional<Salle>
+    + findByType(type: Salle.TypeSalle): List<Salle>
+    + findByEstDisponible(estDisponible: Boolean): List<Salle>
+    + findByDepartement_DepartementId(departementId: Integer): List<Salle>
+    + findByEtage(etage: Integer): List<Salle>
+    + findByBloc(bloc: String): List<Salle>
+    + findByCapaciteGreaterThanEqual(capaciteMin: Integer): List<Salle>
+    + findByTypeAndEstDisponible(type: Salle.TypeSalle, estDisponible: Boolean): List<Salle>
+    + findByCapaciteGreaterThanEqualAndEstDisponibleTrue(capacite: Integer): List<Salle>
+}
+
+AnneeUniversitaireService <|.. AnneeUniversitaireServiceImpl
+AnneeUniversitaireServiceImpl ..> AnneeUniversitaireRepository : uses
+AnneeUniversitaireRepository <|-- JpaRepository
+
+EmploiDuTempsService <|.. EmploiDuTempsServiceImpl
+EmploiDuTempsServiceImpl ..> EmploiDuTempsRepository : uses
+EmploiDuTempsServiceImpl ..> ModuleRepository : uses
+EmploiDuTempsServiceImpl ..> SalleRepository : uses
+EmploiDuTempsServiceImpl ..> AnneeUniversitaireRepository : uses
+EmploiDuTempsRepository <|-- JpaRepository
+
+SalleService <|.. SalleServiceImpl
+SalleServiceImpl ..> SalleRepository : uses
+SalleRepository <|-- JpaRepository
+
+@enduml 

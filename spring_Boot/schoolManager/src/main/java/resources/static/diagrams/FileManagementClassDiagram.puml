@@ -1,0 +1,16 @@
+@startuml
+!pragma layout smetana
+
+interface FileService {
+    + uploadFile(path: String, file: MultipartFile, id: String): String
+    + getResourceFile(path: String, fileName: String): InputStream
+}
+
+class FileServiceImp {
+    + uploadFile(path: String, file: MultipartFile, id: String): String
+    + getResourceFile(path: String, fileName: String): InputStream
+}
+
+FileService <|.. FileServiceImp
+
+@enduml 

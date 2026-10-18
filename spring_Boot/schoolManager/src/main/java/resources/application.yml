@@ -1,0 +1,42 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size:50MB
+      max-request-size:50MB
+  application:
+    name: schoolManager
+  datasource:
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:"1111"}
+    url: jdbc:mysql://localhost:3306/ecolesysteme
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: elkayou249@gmail.com
+    password: "rxtu iijw awzk stmz"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+project:
+  profile: profile
+base:
+  url: "http://localhost:8080"
+
+

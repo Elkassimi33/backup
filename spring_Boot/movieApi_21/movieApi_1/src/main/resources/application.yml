@@ -1,0 +1,24 @@
+spring:
+#  mvc:
+#    cors:
+#      allowed-origins: "*"
+#      allowed-methods: "*"
+#      allowed-headers: "*"
+  datasource:
+    username: root
+    password: 1111
+    url: jdbc:mysql://localhost:3333/movies
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+project:
+  poster: posters
+base:
+  url: "http://localhost:8080"
+
+

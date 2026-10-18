@@ -1,0 +1,17 @@
+  spring:
+    application:
+      name: "scolagile"
+    datasource:
+      username: root
+      password: 1111
+      url: jdbc:mysql://localhost:3333/learning
+    jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true
+      properties:
+        hibernate:
+          format_sql: true
+
+
+

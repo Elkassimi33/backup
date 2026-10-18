@@ -1,0 +1,5 @@
+### GET request to example server
+POST http://localhost:8080/sum?num1=55&num2=66
+
+
+###

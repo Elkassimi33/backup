@@ -1,0 +1,41 @@
+@startuml
+left to right direction
+actor "Chef de Filière" as ChefFiliere
+
+rectangle "Système de Gestion Scolaire" {
+    ' Cas d'utilisation pour la gestion des modules
+    usecase "S'authentifier" as Authenticate
+
+    usecase "Gérer les modules de la filière" as GererModules
+    usecase "Consulter liste des modules" as ConsulterModules
+    usecase "Valider les notes des modules" as ValiderNotes
+
+    ' Cas d'utilisation pour la gestion des étudiants
+    usecase "Gérer les étudiants de la filière" as GererEtudiants
+    usecase "Consulter liste des étudiants" as ConsulterEtudiants
+    usecase "Consulter résultats globaux" as ConsulterResultats
+
+    ' Cas d'utilisation pour la gestion de l'emploi du temps
+    usecase "Consulter l'emploi du temps" as ConsulterEmploi
+    usecase "Valider l'emploi du temps" as ValiderEmploi
+
+    ' Relations avec l'acteur
+    ChefFiliere --> GererModules
+    ChefFiliere --> GererEtudiants
+
+    GererModules <. Authenticate : <<include>>
+    GererEtudiants <. Authenticate : <<include>>
+
+    GererModules <. ConsulterModules : <<include>>
+    GererModules <. ValiderNotes : <<include>>
+
+    GererEtudiants <. ConsulterEtudiants : <<include>>
+    GererEtudiants <. ConsulterResultats : <<include>>
+
+    ChefFiliere -- ConsulterEmploi
+    ChefFiliere -- ValiderEmploi
+
+    ' Relations d'extension
+    ValiderEmploi <.. ConsulterEmploi : extends
+}
+@enduml 

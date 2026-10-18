@@ -1,0 +1,152 @@
+@startuml
+!pragma layout smetana
+
+interface DepartementService {
+    + createDepartement(departementDto: DepartementDto): DepartementDto
+    + updateDepartement(departementId: Integer, departementDto: DepartementDto): DepartementDto
+    + deleteDepartement(departementId: Integer): void
+    + getDepartementById(departementId: Integer): DepartementDto
+    + getAllDepartements(): List<DepartementDto>
+    + getDepartementByNom(nom: String): DepartementDto
+}
+
+class DepartementServiceImpl {
+    - departementRepository: DepartementRepository
+    - enseignantRepository: EnseignantRepository
+    - filiereRepository: FiliereRepository
+    - userRepository: UserRepository
+    + createDepartement(departementDto: DepartementDto): DepartementDto
+    + updateDepartement(departementId: Integer, departementDto: DepartementDto): DepartementDto
+    + deleteDepartement(departementId: Integer): void
+    + getDepartementById(departementId: Integer): DepartementDto
+    + getAllDepartements(): List<DepartementDto>
+    + getDepartementByNom(nom: String): DepartementDto
+    - mapToEntity(dto: DepartementDto): Departement
+    - mapToDto(departement: Departement): DepartementDto
+}
+
+interface DepartementRepository {
+    + findByNom(nom: String): Optional<Departement>
+    + findByNomContainingIgnoreCase(searchTerm: String): List<Departement>
+    + findByResponsable_Id(responsableId: Integer): Optional<Departement>
+    + existsByNom(nom: String): boolean
+}
+
+interface FiliereService {
+    + createFiliere(filiereDTO: FiliereDTO): FiliereResponseDTO
+    + getFiliereById(id: Integer): Optional<FiliereResponseDTO>
+    + getAllFilieres(): List<FiliereResponseDTO>
+    + updateFiliere(id: Integer, filiereDTO: FiliereDTO): FiliereResponseDTO
+    + deleteFiliere(id: Integer): void
+    + getFilieresByDepartement(departementNam: String): List<FiliereResponseDTO>
+    + getFilieresByNiveau(niveau: Filiere.NiveauFiliere): List<FiliereResponseDTO>
+    + getActiveFilieres(): List<FiliereResponseDTO>
+    + assignChefFiliere(filiereId: Integer, enseignantId: Integer): FiliereResponseDTO
+    + removeChefFiliere(filiereId: Integer): FiliereResponseDTO
+    + addModule(filiereId: Integer, moduleDTO: ModuleDto): FiliereResponseDTO
+    + removeModule(filiereId: Integer, moduleId: Integer): FiliereResponseDTO
+    + activateFiliere(id: Integer): FiliereResponseDTO
+    + deactivateFiliere(id: Integer): FiliereResponseDTO
+    + getFiliereByEnseignantId(enseignantId: Integer): List<FiliereDTO>
+}
+
+class FiliereServiceImpl {
+    - filiereRepository: FiliereRepository
+    - departementRepository: DepartementRepository
+    - enseignantRepository: EnseignantRepository
+    - moduleRepository: ModuleRepository
+    + createFiliere(filiereDTO: FiliereDTO): FiliereResponseDTO
+    + getFiliereById(id: Integer): Optional<FiliereResponseDTO>
+    + getAllFilieres(): List<FiliereResponseDTO>
+    + updateFiliere(id: Integer, filiereDTO: FiliereDTO): FiliereResponseDTO
+    + deleteFiliere(id: Integer): void
+    + getFilieresByDepartement(departementNam: String): List<FiliereResponseDTO>
+    + getFilieresByNiveau(niveau: Filiere.NiveauFiliere): List<FiliereResponseDTO>
+    + getActiveFilieres(): List<FiliereResponseDTO>
+    + assignChefFiliere(filiereId: Integer, enseignantId: Integer): FiliereResponseDTO
+    + removeChefFiliere(filiereId: Integer): FiliereResponseDTO
+    + addModule(filiereId: Integer, moduleDTO: ModuleDto): FiliereResponseDTO
+    + removeModule(filiereId: Integer, moduleId: Integer): FiliereResponseDTO
+    + activateFiliere(id: Integer): FiliereResponseDTO
+    + deactivateFiliere(id: Integer): FiliereResponseDTO
+    + getFiliereByEnseignantId(enseignantId: Integer): List<FiliereDTO>
+    - mapToResponseDTO(filiere: Filiere): FiliereResponseDTO
+    - mapDepartementToDTO(departement: Departement): DepartementDto
+    - mapEnseignantToDTO(enseignant: Enseignant): EnseignantDto
+    - mapModuleToDTO(module: Module): ModuleDto
+    - mapModuleDTOToEntity(dto: ModuleDto): Module
+}
+
+interface FiliereRepository {
+    + findByNom(nom: String): Optional<Filiere>
+    + findByNomContainingIgnoreCase(searchTerm: String): List<Filiere>
+    + findByNiveau(niveau: NiveauFiliere): List<Filiere>
+    + findByDepartement_DepartementId(departementId: Integer): List<Filiere>
+    + findByChefFiliere_EnseignantId(enseignantId: Integer): List<Filiere>
+    + findByActive(active: Boolean): List<Filiere>
+    + existsByNomAndNiveauAndDepartement_DepartementId(nom: String, niveau: NiveauFiliere, departementId: Integer): boolean
+    + findByDureeEtudes(dureeEtudes: Integer): List<Filiere>
+    + countByDepartement_DepartementId(departementId: Integer): long
+    + findByActiveTrue(): List<Filiere>
+}
+
+interface ChefFiliereService {
+    + getManagedFilieres(enseignantId: Integer): List<Filiere>
+    + getFiliereStudents(filiereId: Integer): List<EtudiantDto>
+    + getModuleGradeStatistics(moduleId: Long): GradeStatistics
+    + getFiliereModules(filiereId: Integer): List<Module>
+    + getModuleGrades(moduleId: Long): List<noteDto>
+    + validateGrade(noteId: Integer, validated: boolean): void
+    + getFiliereStudentStatistics(filiereId: Integer): List<StudentStatistics>
+    + getFailedStudents(filiereId: Integer): List<EtudiantDto>
+    + getAtRiskStudents(filiereId: Integer): List<EtudiantDto>
+    + getModulesWithDisplayStatus(filiereId: Integer): List<ModuleDisplayStatusDto>
+}
+
+class ChefFiliereServiceImpl {
+    - filiereRepository: FiliereRepository
+    - etudiantRepository: EtudiantRepository
+    - moduleRepository: ModuleRepository
+    - noteRepository: NoteRepository
+    - noteService: NoteService
+    - etudiantService: EtudianService
+    - moduleAffichRepository: ModuleAffichRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    + getManagedFilieres(enseignantId: Integer): List<Filiere>
+    + getFiliereStudents(filiereId: Integer): List<EtudiantDto>
+    + getModuleGradeStatistics(moduleId: Long): GradeStatistics
+    + getFiliereModules(filiereId: Integer): List<Module>
+    + getModuleGrades(moduleId: Long): List<noteDto>
+    + validateGrade(noteId: Integer, validated: boolean): void
+    + getFiliereStudentStatistics(filiereId: Integer): List<StudentStatistics>
+    + getFailedStudents(filiereId: Integer): List<EtudiantDto>
+    + getAtRiskStudents(filiereId: Integer): List<EtudiantDto>
+    + getModulesWithDisplayStatus(filiereId: Integer): List<ModuleDisplayStatusDto>
+}
+
+DepartementService <|.. DepartementServiceImpl
+DepartementServiceImpl ..> DepartementRepository : uses
+DepartementServiceImpl ..> EnseignantRepository : uses
+DepartementServiceImpl ..> FiliereRepository : uses
+DepartementServiceImpl ..> UserRepository : uses
+
+FiliereService <|.. FiliereServiceImpl
+FiliereServiceImpl ..> FiliereRepository : uses
+FiliereServiceImpl ..> DepartementRepository : uses
+FiliereServiceImpl ..> EnseignantRepository : uses
+FiliereServiceImpl ..> ModuleRepository : uses
+
+ChefFiliereService <|.. ChefFiliereServiceImpl
+ChefFiliereServiceImpl ..> FiliereRepository : uses
+ChefFiliereServiceImpl ..> EtudiantRepository : uses
+ChefFiliereServiceImpl ..> ModuleRepository : uses
+ChefFiliereServiceImpl ..> NoteRepository : uses
+ChefFiliereServiceImpl ..> NoteService : uses
+ChefFiliereServiceImpl ..> EtudianService : uses
+ChefFiliereServiceImpl ..> ModuleAffichRepository : uses
+ChefFiliereServiceImpl ..> AnneeUniversitaireRepository : uses
+
+DepartementRepository <|-- JpaRepository
+FiliereRepository <|-- JpaRepository
+
+@enduml

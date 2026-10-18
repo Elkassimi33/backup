@@ -1,0 +1,186 @@
+@startuml
+!pragma layout smetana
+
+interface ModuleSevice {
+    + insertModule(moduleDto: ModuleDto): void
+    + insertModules(moduleDtos: List<ModuleDto>): void
+    + updateModule(moduleId: Long, moduleDto: ModuleDto): ModuleDto
+    + getModulesById(moduleId: Long): ModuleDto
+    + deleteModule(moduleId: Long): void
+    + getModulesByEnseignant(enseignantId: Integer): List<ModuleDto>
+    + getModulesByDepartement(departementId: Integer): List<ModuleDto>
+    + getModulesByFiliere(filiereId: Integer): List<ModuleDto>
+    + getAllModules(): List<ModuleDto>
+}
+
+class ModuleSeviceImpl {
+    - moduleRepository: ModuleRepository
+    - filiereRepository: FiliereRepository
+    - enseignantRepository: EnseignantRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    - departementRepository: DepartementRepository
+    + insertModule(moduleDto: ModuleDto): void
+    + insertModules(moduleDtos: List<ModuleDto>): void
+    + updateModule(moduleId: Long, moduleDto: ModuleDto): ModuleDto
+    + getModulesById(moduleId: Long): ModuleDto
+    + deleteModule(moduleId: Long): void
+    + getModulesByEnseignant(enseignantId: Integer): List<ModuleDto>
+    + getModulesByDepartement(departementId: Integer): List<ModuleDto>
+    + getModulesByFiliere(filiereId: Integer): List<ModuleDto>
+    + getAllModules(): List<ModuleDto>
+    - mapToModule(moduleDto: ModuleDto): Module
+    - mapToDto(module: Module): ModuleDto
+}
+
+interface ModuleRepository {
+    + findByCodeModule(codeModule: String): Optional<Module>
+    + findByNomModuleContainingIgnoreCase(nomModule: String): List<Module>
+    + findByFiliere_FiliereId(filiereId: Integer): List<Module>
+    + findByEnseignant_EnseignantId(enseignantId: Integer): List<Module>
+    + findByAnneeUniversitaire_AnneeIdAndEnseignant_EnseignantId(anneeUniversitaireId: Integer, enseignantId: Integer): List<Module>
+    + findBySemester(semester: Module.Semester): List<Module>
+    + findByAnneeUniversitaire_AnneeIdAndFiliere_FiliereId(anneeId: Integer, filiereId: Integer): List<Module>
+    + findByAnneeUniversitaire_AnneeIdAndEnseignant_EnseignantIdIn(anneeId: Integer, enseignantIds: List<Integer>): List<Module>
+    + findByAnneeUniversitaire_AnneeId(anneeUniversitaireId: Integer): List<Module>
+    + findByHasTp(hasTp: boolean): List<Module>
+    + findBySemesterAndFiliere_FiliereId(semester: Module.Semester, filiereId: Integer): List<Module>
+    + findBySemesterAndFiliere_FiliereIdAndAnneeUniversitaire_AnneeId(semester: Module.Semester, filiereId: Integer, anneeId: Integer): List<Module>
+    + existsByCodeModule(codeModule: String): boolean
+}
+
+interface NoteService {
+    + insertNotes(noteList: List<EtudiantNoteDto>, idModule: Long, idEnseignant: Integer, idFiliere: Integer, typeExamen: Note.TypeExamen): void
+    + getEtudiantNotesByYear(idEtudiant: Integer): List<Note>
+    + getModuleGradeStatistics(moduleId: Long): GradeStatistics
+    + getStudentGradeHistory(studentId: Integer, moduleId: Long): List<GradeHistory>
+    + validateAndCorrectGrade(note: Note): Note
+    + getStudentGPA(studentId: Integer, semester: Module.Semester): double
+    + getStudentStatistics(studentId: Integer): StudentStatistics
+    + getStudentModuleNotes(studentId: Integer, moduleId: Long): List<noteDto>
+    + calculateStudentGPA(studentId: Integer, semester: Module.Semester): double
+    + getModuleNotes(moduleId: Long): List<noteDto>
+    + updateNote(noteId: Integer, newGrade: double): void
+    + deleteNote(noteId: Integer): void
+    + getStudentFailedModules(studentId: Integer): List<NoteFinal>
+    + getStudentPassedModules(studentId: Integer): List<NoteFinal>
+    + getEtudiantNote(studentId: Integer): Map<String, Map<String, Double>>
+    + updateStudentStatus(studentId: Integer): void
+}
+
+class NoteServiceImpl {
+    - moduleRepository: ModuleRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    - noteRepository: NoteRepository
+    - noteFinalRepository: NoteFinalRepository
+    - enseignantRepository: EnseignantRepository
+    - filiereRepository: FiliereRepository
+    - etudiantRepository: EtudiantRepository
+    - moduleAffichRepository: ModuleAffichRepository
+    - semesterNoteRepository: SemesterNoteRepository
+    - mailSender: JavaMailSender
+    - filiereSemesterRepository: FiliereSemesterRepository
+    - attendanceService: AttendanceService
+    + insertNotes(noteList: List<EtudiantNoteDto>, idModule: Long, idEnseignant: Integer, idFiliere: Integer, typeExamen: Note.TypeExamen): void
+    + getEtudiantNotesByYear(idEtudiant: Integer): List<Note>
+    + getModuleGradeStatistics(moduleId: Long): GradeStatistics
+    + getStudentGradeHistory(studentId: Integer, moduleId: Long): List<GradeHistory>
+    + validateAndCorrectGrade(note: Note): Note
+    + getStudentGPA(studentId: Integer, semester: Module.Semester): double
+    + getStudentStatistics(studentId: Integer): StudentStatistics
+    + getStudentModuleNotes(studentId: Integer, moduleId: Long): List<noteDto>
+    + calculateStudentGPA(studentId: Integer, semester: Module.Semester): double
+    + getModuleNotes(moduleId: Long): List<noteDto>
+    + updateNote(noteId: Integer, newGrade: double): void
+    + deleteNote(noteId: Integer): void
+    + getStudentFailedModules(studentId: Integer): List<NoteFinal>
+    + getStudentPassedModules(studentId: Integer): List<NoteFinal>
+    + getEtudiantNote(codApj: Integer): Map<String, Map<String, Double>>
+    + updateStudentStatus(studentId: Integer): void
+    - validateInsertNotesParameters(noteList: List<EtudiantNoteDto>, idModule: Long, idEnseignant: Integer, idFiliere: Integer, typeExamen: Note.TypeExamen): void
+    - validateNoteDto(noteDto: EtudiantNoteDto): void
+    - fetchRequiredEntities(idModule: Long, idEnseignant: Integer, idFiliere: Integer): EntityContainer
+    - processNotesByExamType(noteList: List<EtudiantNoteDto>, entities: EntityContainer, typeExamen: Note.TypeExamen): NoteProcessingResult
+    - processNormalExamNotes(noteList: List<EtudiantNoteDto>, entities: EntityContainer): NoteProcessingResult
+    - processNormalExamWithoutTp(noteDto: EtudiantNoteDto, entities: EntityContainer, notesToSave: List<Note>, finalGradesToSave: List<NoteFinal>): void
+    - processNormalExamWithTp(noteDto: EtudiantNoteDto, entities: EntityContainer, notesToSave: List<Note>, finalGradesToSave: List<NoteFinal>): void
+    - processRattrapageExamNotes(noteList: List<EtudiantNoteDto>, entities: EntityContainer): NoteProcessingResult
+    - processFailedRattrapageNote(note: Note, noteDto: EtudiantNoteDto, entities: EntityContainer, finalGradesToSave: List<NoteFinal>): void
+    - saveNotesInBatch(result: NoteProcessingResult): void
+    - determineGradeStatus(grade: double): NoteFinal.StatutNote
+    - calculateWeightedAverage(examGrade: double, tpGrade: double): double
+    - calculateNormalGrade(notes: List<Note>, module: Module): double
+    - createNote(enseignant: Enseignant, noteDto: EtudiantNoteDto, module: Module, filiere: Filiere, noteValue: double, anneeUniversitaire: AnneeUniversitaire, typeExamen: Note.TypeExamen, isTp: boolean, status: NoteFinal.StatutNote): Note
+    - createNoteFinal(note: Note): NoteFinal
+    - mapToModuleAndNoteForNormalAndRedoublant(modules: List<Module>, etudiant: Etudiant, anneeUniversitaire: AnneeUniversitaire): Map<String, Map<String, Double>>
+    - validateGradeRange(grade: double): void
+    - isSuspiciousGrade(note: Note): boolean
+    - validateSuspiciousGrade(note: Note): double
+    - calculateStandardDeviation(notes: List<Note>, mean: double): double
+    - sendNoteNotifications(notes: List<Note>, module: Module): void
+    - mapTNoteDto(note: Note): noteDto
+}
+
+interface NoteRepository {
+    + findByEtudiant_CodeApj(etudiantId: Integer): List<Note>
+    + findByEnseignant_EnseignantId(enseignantId: Integer): List<Note>
+    + findByModule_IdModule(moduleId: Long): List<Note>
+    + findBySemester(semester: Module.Semester): List<Note>
+    + findByAnneeUniversitaire_AnneeId(anneeUniversitaireId: Integer): List<Note>
+    + findByTypeExamen(typeExamen: Note.TypeExamen): List<Note>
+    + findByEtudiant_CodeApjAndModule_IdModuleAndSemester(etudiantId: Integer, moduleId: Long, semester: Module.Semester): List<Note>
+    + findByEtudiant_CodeApjAndModule_IdModuleAndSemesterAndAnneeUniversitaire_AnneeId(etudiantId: Integer, moduleId: Long, semester: Module.Semester, anneeUniversitaireId: Integer): List<Note>
+    + findByEtudiant_CodeApjAndAnneeUniversitaire_AnneeId(etudiantId: Integer, anneeUniversitaireId: Integer): List<Note>
+    + findByEtudiant_CodeApjAndModule_IdModuleOrderByDateNotationDesc(etudiantId: Integer, moduleId: Long): List<Note>
+    + calculateAverageByEtudiantAndModuleAndAnneeUniversitaire(etudiantId: Integer, moduleId: Long, anneeUniversitaireId: Integer): Double
+    + findByModule_IdModuleOrderByDateNotationDesc(moduleId: Long): List<Note>
+    + findByEtudiant_CodeApjAndStatut(codeApj: Integer, statut: NoteFinal.StatutNote): List<Note>
+    + findByModule_IdModuleAndAndAnneeUniversitaire_AnneeIdOrderByDateNotationDesc(moduleId: Long, anneeId: Integer): List<Note>
+    + findNotesByStudentModuleSemesterAndYear(codeApj: Integer, idModule: Long, semester: Module.Semester, anneeId: Integer): List<Note>
+}
+
+interface NoteFinalRepository {
+    + findByEtudiant_CodeApjAndModule_IdModuleAndSemesterAndAnneeUniversitaire_AnneeId(etudiantId: Integer, moduleId: Long, semester: Module.Semester, anneeUniversitaireId: Integer): Optional<NoteFinal>
+    + findByEtudiant_CodeApj(etudiantId: Integer): List<NoteFinal>
+    + findByEnseignant_EnseignantId(enseignantId: Integer): List<NoteFinal>
+    + findByModule_IdModule(moduleId: Long): List<NoteFinal>
+    + findByModule_IdModuleAndAnneeUniversitaire_AnneeId(moduleId: Long, anneeUniversitaireId: Integer): List<NoteFinal>
+    + findByModule_IdModuleAndEtudiant_CodeApj(moduleId: Long, etudiantId: Integer): List<NoteFinal>
+    + findBySemester(semester: Module.Semester): List<NoteFinal>
+    + findByAnneeUniversitaire_AnneeId(anneeUniversitaireId: Integer): List<NoteFinal>
+    + findByStatut(statut: NoteFinal.StatutNote): List<NoteFinal>
+    + calculateAverageByEtudiantAndSemesterAndAnneeUniversitaire(etudiantId: Integer, semester: Module.Semester, anneeUniversitaireId: Integer): Double
+    + countValidatedModulesByEtudiantAndSemesterAndAnneeUniversitaire(etudiantId: Integer, semester: Module.Semester, anneeUniversitaireId: Integer): Long
+    + findByEtudiant_CodeApjAndSemester(codeApj: Integer, semester: Module.Semester): List<NoteFinal>
+    + findByEtudiant_CodeApjAndStatut(studentId: Integer, statutNote: NoteFinal.StatutNote): List<NoteFinal>
+    + findByEtudiant_CodeApjAndStatutAndAnneeUniversitaire_AnneeId(codeApj: Integer, statut: NoteFinal.StatutNote, anneeId: Integer): List<NoteFinal>
+    + findByEtudiant_CodeApjAndModule_IdModuleAndStatutAndAnneeUniversitaire_AnneeId(studentId: Integer, moduleId: Long, statut: NoteFinal.StatutNote, anneeId: Integer): List<NoteFinal>
+    + findByEtudiant_CodeApjAndModule_IdModuleAndStatut(studentId: Integer, moduleId: Long, statut: NoteFinal.StatutNote): List<NoteFinal>
+    + countByEtudiant_CodeApjAndStatutInAndAnneeUniversitaire_AnneeId(codeApj: Integer, statuts: List<NoteFinal.StatutNote>, anneeId: Integer): long
+}
+
+ModuleSevice <|.. ModuleSeviceImpl
+ModuleSeviceImpl ..> ModuleRepository : uses
+ModuleSeviceImpl ..> FiliereRepository : uses
+ModuleSeviceImpl ..> EnseignantRepository : uses
+ModuleSeviceImpl ..> AnneeUniversitaireRepository : uses
+ModuleSeviceImpl ..> DepartementRepository : uses
+
+NoteService <|.. NoteServiceImpl
+NoteServiceImpl ..> ModuleRepository : uses
+NoteServiceImpl ..> AnneeUniversitaireRepository : uses
+NoteServiceImpl ..> NoteRepository : uses
+NoteServiceImpl ..> NoteFinalRepository : uses
+NoteServiceImpl ..> EnseignantRepository : uses
+NoteServiceImpl ..> FiliereRepository : uses
+NoteServiceImpl ..> EtudiantRepository : uses
+NoteServiceImpl ..> ModuleAffichRepository : uses
+NoteServiceImpl ..> SemesterNoteRepository : uses
+NoteServiceImpl ..> JavaMailSender : uses
+NoteServiceImpl ..> FiliereSemesterRepository : uses
+NoteServiceImpl ..> AttendanceService : uses
+
+ModuleRepository <|-- JpaRepository
+NoteRepository <|-- JpaRepository
+NoteFinalRepository <|-- JpaRepository
+
+@enduml

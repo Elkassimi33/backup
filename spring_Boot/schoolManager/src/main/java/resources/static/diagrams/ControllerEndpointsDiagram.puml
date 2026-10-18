@@ -1,0 +1,127 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "Controller Endpoints" {
+  class ModuleController {
+    + /api/modules
+    + /api/modules/batch
+    + /api/modules/{moduleId}
+    + /api/modules/enseignant/{enseignantId}
+    + /api/modules/departement/{departementId}
+    + /api/modules/filiere/{filiereId}
+  }
+
+  class EtudiantController {
+    + /api/students/{userId}
+    + /api/students/{codeApj}
+    + /api/students/module/{moduleId}
+    + /api/students/filiere/{filiereNom}/semestre/{semester}
+    + /api/students/filiere/{filiereId}
+    + /api/students/{codeApj}/certificate
+    + /api/students/{userId}/convocation
+  }
+
+  class FiliereController {
+    + /api/filieres
+    + /api/filieres/by-id/{id}
+    + /api/filieres/{id}
+    + /api/filieres/departement/{departementId}
+    + /api/filieres/niveau/{niveau}
+    + /api/filieres/active
+    + /api/filieres/{enseignantId}
+    + /api/filieres/{filiereId}/chef/{enseignantId}
+    + /api/filieres/{filiereId}/chef
+    + /api/filieres/{filiereId}/modules
+    + /api/filieres/{filiereId}/modules/{moduleId}
+    + /api/filieres/{id}/activate
+    + /api/filieres/{id}/deactivate
+  }
+
+  class ChefFiliereController {
+    + /chef-filiere/{enseignantId}/filieres
+    + /chef-filiere/filiere/{filiereId}/students
+    + /chef-filiere/module/{moduleId}/statistics
+    + /chef-filiere/filiere/{filiereId}/modules
+    + /chef-filiere/module/{moduleId}/grades
+    + /chef-filiere/note/{noteId}/validate
+    + /chef-filiere/filiere/{filiereId}/statistics
+    + /chef-filiere/filiere/{filiereId}/failed-students
+    + /chef-filiere/filiere/{filiereId}/at-risk-students
+    + /chef-filiere/filiere/{filiereId}/modules/display-status
+  }
+
+  class NoteController {
+    + /api/notes/insert
+    + /api/notes/student/{idEtudiant}
+    + /api/notes/module/{moduleId}/statistics
+    + /api/notes/student/{studentId}/statistics
+    + /api/notes/student/{studentId}/module/{moduleId}
+    + /api/notes/module/{moduleId}
+    + /api/notes/{noteId}
+    + /api/notes/student/{studentId}/failed
+    + /api/notes/student/{studentId}/passed
+    + /api/notes/student/{studentId}/notes
+  }
+
+  class InscriptionController {
+    + /api/inscriptions
+    + /api/inscriptions/student/{etudiantId}/year/{anneeId}
+    + /api/inscriptions/student/{etudiantId}
+    + /api/inscriptions/year/{anneeId}
+    + /api/inscriptions/check/{etudiantId}/year/{anneeId}
+  }
+
+  class DepartementController {
+    + /api/departements/add
+    + /api/departements/{departementId}
+    + /api/departements
+    + /api/departements/nom/{nom}
+  }
+
+  class AnneeUniversitaireController {
+    + /api/annees-universitaires
+    + /api/annees-universitaires/{anneeId}
+    + /api/annees-universitaires/current
+    + /api/annees-universitaires/{anneeId}/set-current
+  }
+
+  class AdminController {
+    + /api/admin/all
+    + /api/admin/student
+    + /api/admin/teacher
+    + /api/admin/{userId}
+    + /api/admin/admin
+  }
+
+  class AuthController {
+    + /api/auth/login
+    + /api/auth/refresh
+    + /api/auth/logout
+    + /api/auth/password-reset/request
+    + /api/auth/password-reset/reset
+    + /api/auth/unlock-account
+  }
+
+  class AttendanceController {
+    + /api/attendance/mark
+    + /api/attendance/student/{studentId}
+    + /api/attendance/student/{studentId}/range
+    + /api/attendance/module/{moduleId}
+    + /api/attendance/student/{studentId}/rate
+  }
+
+  class EmploiDuTempsController {
+    + /api/v1/emploi-du-temps
+    + /api/v1/emploi-du-temps/{id}
+    + /api/v1/emploi-du-temps/module/{moduleId}
+    + /api/v1/emploi-du-temps/salle/{salleId}
+    + /api/v1/emploi-du-temps/jour/{jour}
+  }
+
+  class FileController {
+    + /file/upload
+    + /file/{fileName}
+  }
+}
+
+@enduml 

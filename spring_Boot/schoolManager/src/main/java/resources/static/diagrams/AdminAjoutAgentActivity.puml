@@ -1,0 +1,53 @@
+@startuml
+|Administrateur|
+start
+:Se connecter au système;
+
+|Système|
+:Vérifier les droits d'accès;
+
+if (Accès autorisé?) then (non)
+  :Afficher message d'erreur;
+  stop
+else (oui)
+  |Administrateur|
+  :Accéder au formulaire d'ajout d'agent;
+
+  repeat
+    :Remplir les informations de l'agent;
+    note right
+      Informations requises:
+      - Nom
+      - Prénom
+      - Email
+      - Téléphone
+      - Département
+      - Rôle
+    end note
+
+    |Système|
+    :Valider les données saisies;
+
+    if (Données valides?) then (non)
+      :Afficher les erreurs de validation;
+      |Administrateur|
+      :Corriger les erreurs;
+    endif
+  repeat while (Données valides?)
+
+  |Système|
+  :Générer un mot de passe temporaire;
+  :Créer le compte utilisateur;
+  :Envoyer les identifiants par email;
+  :Enregistrer l'agent dans la base de données;
+
+  |Administrateur|
+  :Confirmer l'ajout;
+  :Recevoir confirmation du système;
+
+  |Système|
+  :Afficher message de succès;
+endif
+
+stop
+@enduml 

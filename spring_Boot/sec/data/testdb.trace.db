@@ -1,0 +1,12 @@
+2026-04-01 16:10:04.366738+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table [*]user (id bigint not null, password varchar(255), role varchar(255), username varchar(255), primary key (id))"; expected "identifier"; SQL statement:
+create table user (id bigint not null, password varchar(255), role varchar(255), username varchar(255), primary key (id)) [42001-240]
+2026-04-01 16:10:05.935774+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "select u1_0.id,u1_0.password,u1_0.role,u1_0.username from [*]user u1_0 where u1_0.username=?"; expected "identifier"; SQL statement:
+select u1_0.id,u1_0.password,u1_0.role,u1_0.username from user u1_0 where u1_0.username=? [42001-240]
+2026-04-01 16:11:39.087119+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table [*]user (id bigint not null, password varchar(255), role varchar(255), username varchar(255), primary key (id))"; expected "identifier"; SQL statement:
+create table user (id bigint not null, password varchar(255), role varchar(255), username varchar(255), primary key (id)) [42001-240]
+2026-04-01 16:11:40.759159+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "select u1_0.id,u1_0.password,u1_0.role,u1_0.username from [*]user u1_0 where u1_0.username=?"; expected "identifier"; SQL statement:
+select u1_0.id,u1_0.password,u1_0.role,u1_0.username from user u1_0 where u1_0.username=? [42001-240]

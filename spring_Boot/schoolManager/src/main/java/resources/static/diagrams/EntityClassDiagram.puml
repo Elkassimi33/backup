@@ -1,0 +1,412 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class User {
+    - id: Integer
+    - username: String
+    - email: String
+    - password: String
+    - refreshToken: RefreshToken
+    - role: UserRole
+    - accountNonExpired: boolean
+    - accountNonLocked: boolean
+    - credentialsNonExpired: boolean
+    - enabled: boolean
+    - createdAt: LocalDateTime
+    - updatedAt: LocalDateTime
+    - lastLogin: LocalDateTime
+    - failedLoginAttempts: int
+    - passwordResetToken: String
+    - passwordResetExpires: LocalDateTime
+    - universityEmail: String
+    - universityPassword: String
+    + getAuthorities(): Collection
+    + getUsername(): String
+    + getPassword(): String
+    + isAccountNonExpired(): boolean
+    + isAccountNonLocked(): boolean
+    + isCredentialsNonExpired(): boolean
+    + isEnabled(): boolean
+    + incrementFailedLoginAttempts(): void
+    + resetFailedLoginAttempts(): void
+    + recordSuccessfulLogin(): void
+    + lockAccount(): void
+    + unlockAccount(): void
+    + isPasswordResetTokenValid(): boolean
+    + invalidatePasswordResetToken(): void
+    + isPasswordConfirmValid(): boolean
+}
+
+enum UserRole {
+    ROLE_STUDENT
+    ROLE_TEACHER
+    ROLE_ADMIN
+    ROLE_CHEF_FILIERE
+}
+
+class Role {
+    - id: Long
+    - name: String
+}
+
+class Admin {
+    - adminId: Integer
+    - nom: String
+    - prenom: String
+    - profil: String
+    - specialite: String
+    - grade: String
+    - telephone: String
+    - createdAt: LocalDateTime
+    - updatedAt: LocalDateTime
+    + getNomComplet(): String
+    + getEmail(): String
+}
+
+class Enseignant {
+    - enseignantId: Integer
+    - nom: String
+    - prenom: String
+    - profil: String
+    - specialite: String
+    - grade: String
+    - telephone: String
+    - statut: StatutEnseignant
+    - createdAt: LocalDateTime
+    - updatedAt: LocalDateTime
+    + getNomComplet(): String
+    + getEmail(): String
+}
+
+enum StatutEnseignant {
+    PERMANENT
+    VACATAIRE
+    ASSOCIE
+    INVITE
+    EMERITE
+}
+
+class Etudiant {
+    - codeApj: Integer
+    - nom: String
+    - prenom: String
+    - cne: String
+    - dateNaissance: LocalDate
+    - adresse: String
+    - pay: String
+    - telephone: String
+    - anneeActuelle: Integer
+    - profile: String
+    - semester: Module.Semester
+    - statut: StatutEtudiant
+}
+
+enum StatutEtudiant {
+    NORMAL
+    REDOUBLANT
+    REDOUBLANT_PARTIEL
+    RESERVISTE
+    ABANDON
+    VALIDE_NIVEAU
+}
+
+class AnneeUniversitaire {
+    - anneeId: Integer
+    - annee: String
+    - anneeCourante: boolean
+    - dateDebut: LocalDate
+    - dateFin: LocalDate
+    - createdAt: LocalDateTime
+    - updatedAt: LocalDateTime
+    + isAnneeValide(): boolean
+    + getAnneeDebut(): Integer
+    + getAnneeFin(): Integer
+}
+
+class Departement {
+    - departementId: Integer
+    - nom: String
+    - description: String
+    - dateCreation: LocalDateTime
+    - createdAt: LocalDateTime
+    - updatedAt: LocalDateTime
+    + ajouterFiliere(filiere: Filiere): boolean
+    + supprimerFiliere(filiere: Filiere): boolean
+    + getNombreFilieres(): int
+    + hasResponsable(): boolean
+}
+
+class Filiere {
+    - filiereId: Integer
+    - nom: String
+    - description: String
+    - dureeEtudes: Integer
+    - niveau: NiveauFiliere
+    - active: Boolean
+    - createdAt: LocalDateTime
+    - updatedAt: LocalDateTime
+    + ajouterModule(module: Module): boolean
+    + supprimerModule(module: Module): boolean
+    + getNombreModules(): int
+    + getNomComplet(): String
+    + hasChefFiliere(): boolean
+    + activer(): void
+    + desactiver(): void
+}
+
+enum NiveauFiliere {
+    DEUST
+    LST
+    CYCLE
+    MASTER
+    DOCTORAT
+}
+
+class Module {
+    - idModule: Long
+    - nomModule: String
+    - codeModule: String
+    - volumeHoraire: Integer
+    - semester: Semester
+    - hasTp: boolean
+}
+
+enum Semester {
+    S1, S2, S3, S4, S5, S6, S7, S8, S9, S10
+}
+
+class Inscription {
+    - id: Integer
+    - statut: StatutInscription
+    - dateInscription: LocalDateTime
+    - dateModification: LocalDateTime
+}
+
+enum StatutInscription {
+    EN_COURS
+    VALIDE
+    ANNULE
+}
+
+class Attendance {
+    - id: Long
+    - date: LocalDate
+    - heureDebut: LocalTime
+    - heureFin: LocalTime
+    - present: boolean
+    - justification: String
+}
+
+class EmploiDuTemps {
+    - id: Long
+    - jourSemaine: DayOfWeek
+    - heureDebut: LocalTime
+    - heureFin: LocalTime
+    - semestre: Module.Semester
+    - typeCours: TypeCours
+    - groupe: Integer
+    - estValide: Boolean
+    - commentaire: String
+    - jour: DayOfWeek
+}
+
+enum TypeCours {
+    COURS
+    TD
+    TP
+    EXAMEN
+    RATTRAPAGE
+    CONTROLE_CONTINU
+}
+
+class Salle {
+    - id: Integer
+    - nom: String
+    - codeSalle: String
+    - capacite: Integer
+    - type: TypeSalle
+    - estDisponible: Boolean
+    - etage: Integer
+    - bloc: String
+    - description: String
+    - equipements: String
+}
+
+enum TypeSalle {
+    COURS
+    TP
+    EXAMEN
+}
+
+class FiliereSemester {
+    - id: Integer
+    - semester: Module.Semester
+    - isFirstSemester: boolean
+    - isLastSemester: boolean
+}
+
+class ModuleAffich {
+    - idaffi: Long
+    - afficheNormal: Boolean
+    - afficheRatrapage: Boolean
+}
+
+class Note {
+    - idNote: Integer
+    - note: Double
+    - semester: Module.Semester
+    - dateNotation: LocalDate
+    - typeExamen: TypeExamen
+    - estTp: Boolean
+    - statut: NoteFinal.StatutNote
+}
+
+enum TypeExamen {
+    NORMAL
+    RATTRAPAGE
+}
+
+class NoteFinal {
+    - idNote: Integer
+    - note: Double
+    - semester: Module.Semester
+    - statut: StatutNote
+}
+
+enum StatutNote {
+    VALIDE
+    NON_VALIDE
+    ACQUIS_PAR_COMPENSATION
+    AJOURNE
+}
+
+class SemesterNote {
+    - id: Integer
+    - note: Double
+    - statut: StatutSemester
+    - semester: Module.Semester
+}
+
+enum StatutSemester {
+    VALIDE
+    NON_VALIDE
+}
+
+class Projet {
+    - id: Integer
+    - titre: String
+    - description: String
+    - type: TypeProjet
+    - encadrantExterne: String
+    - entreprise: String
+    - adresseEntreprise: String
+    - dateDebut: LocalDate
+    - dateFin: LocalDate
+    - dateSoutenance: LocalDate
+    - noteFinale: Double
+    - noteRapport: Double
+    - noteSoutenance: Double
+    - noteEncadrant: Double
+    - statut: StatutProjet
+    - technologiesUtilisees: String
+    - lienGithub: String
+    - lienRapport: String
+    - commentaires: String
+}
+
+enum TypeProjet {
+    PFE
+    STAGE_OUVRIER
+    STAGE_TECHNIQUE
+    STAGE_INGENIEUR
+    PROJET_TUTORE
+    PROJET_RECHERCHE
+}
+
+enum StatutProjet {
+    EN_RECHERCHE
+    EN_COURS
+    RAPPORT_DEPOSE
+    SOUTENANCE_PLANIFIEE
+    SOUTENANCE_EFFECTUEE
+    VALIDE
+    NON_VALIDE
+    ANNULE
+}
+
+
+User "1" -- "*" Role : roles
+User *-- "1" RefreshToken : refreshToken
+User <|-- Admin
+User <|-- Enseignant
+User <|-- Etudiant
+
+Admin "1" -- "1" User : user_id
+Enseignant "1" -- "1" User : user_id
+Etudiant "1" -- "1" User : user_id
+
+Departement "1" o-- "0..n" Filiere : contains
+Departement "1" -- "0..1" User : responsable
+
+Filiere "1" o-- "0..n" Module : contains
+Filiere "1" -- "0..1" Enseignant : chefFiliere
+Filiere "1" o-- "0..n" FiliereSemester : has
+Filiere "1" o-- "0..n" Inscription : has
+Filiere "1" o-- "0..n" Projet : has
+Filiere "1" o-- "0..n" ModuleAffich : has
+
+Module "1" -- "0..1" Filiere : partOf
+Module "1" -- "0..1" Enseignant : taughtBy
+Module "1" -- "0..1" AnneeUniversitaire : for
+Module "1" o-- "0..n" Attendance : has
+Module "1" o-- "0..n" EmploiDuTemps : has
+Module "1" o-- "0..n" Note : has
+Module "1" o-- "0..n" NoteFinal : has
+Module "1" o-- "0..n" ModuleAffich : has
+
+Etudiant "1" -- "0..1" AnneeUniversitaire : dateInscription
+Etudiant "1" -- "0..1" AnneeUniversitaire : anneeUniversitaire
+Etudiant "1" -- "0..1" Filiere : partOf
+Etudiant "1" o-- "0..n" Attendance : has
+Etudiant "1" o-- "0..n" Inscription : has
+Etudiant "1" o-- "0..n" Note : has
+Etudiant "1" o-- "0..n" NoteFinal : has
+Etudiant "1" o-- "0..n" SemesterNote : has
+Etudiant "1" o-- "0..n" Projet : partOf
+
+AnneeUniversitaire "1" o-- "0..n" EmploiDuTemps : for
+AnneeUniversitaire "1" o-- "0..n" Inscription : for
+AnneeUniversitaire "1" o-- "0..n" Note : for
+AnneeUniversitaire "1" o-- "0..n" NoteFinal : for
+AnneeUniversitaire "1" o-- "0..n" SemesterNote : for
+AnneeUniversitaire "1" o-- "0..n" Projet : for
+AnneeUniversitaire "1" o-- "0..n" ModuleAffich : for
+
+EmploiDuTemps "1" -- "0..1" Salle : in
+EmploiDuTemps "1" -- "0..1" Enseignant : by
+EmploiDuTemps "1" -- "0..1" Filiere : for
+EmploiDuTemps "1" o-- "0..n" Attendance : has
+
+Inscription "1" -- "0..1" Filiere : in
+Inscription "1" -- "0..1" Etudiant : for
+Inscription "1" -- "0..1" AnneeUniversitaire : in
+
+Note "1" -- "0..1" Enseignant : by
+Note "1" -- "0..1" Etudiant : for
+Note "1" -- "0..1" Module : for
+Note "1" -- "0..1" Filiere : in
+
+NoteFinal "1" -- "0..1" Enseignant : by
+NoteFinal "1" -- "0..1" Etudiant : for
+NoteFinal "1" -- "0..1" Module : for
+NoteFinal "1" -- "0..1" Filiere : in
+NoteFinal "1" -- "0..1" AnneeUniversitaire : for
+
+SemesterNote "1" -- "0..1" Etudiant : for
+SemesterNote "1" -- "0..1" AnneeUniversitaire : for
+
+Projet "1" -- "0..1" Enseignant : encadrantInterne
+Projet "1" -- "0..n" Enseignant : jury
+Projet "1" o-- "0..n" Etudiant : teamMembers
+
+@enduml 

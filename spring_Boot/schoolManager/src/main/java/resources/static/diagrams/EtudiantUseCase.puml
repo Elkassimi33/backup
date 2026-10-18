@@ -1,0 +1,42 @@
+@startuml
+left to right direction
+actor "Étudiant" as Etudiant
+
+rectangle "Système de Gestion Scolaire" {
+    ' Cas d'utilisation pour la consultation des informations personnelles
+    usecase "Consulter son profil" as ConsulterProfil
+
+    ' Cas d'utilisation pour la consultation des résultats académiques
+    usecase "Consulter ses notes" as ConsulterNotes
+
+    ' Cas d'utilisation pour la consultation des informations sur la filière et les modules
+    usecase "Consulter les informations de sa filière" as ConsulterFiliere
+    usecase "Consulter la liste de ses modules" as ConsulterModules
+
+    ' Cas d'utilisation pour la consultation de l'emploi du temps
+    usecase "Consulter l'emploi du temps" as ConsulterEmploi
+
+    ' Cas d'utilisation pour la consultation des informations sur l'inscription
+    usecase "Consulter son statut d'inscription" as ConsulterInscription
+
+    ' Cas d'utilisation pour l'authentification
+    usecase "S'authentifier" as Authenticate
+
+    ' Relations avec l'acteur
+    Etudiant -- Authenticate
+    Etudiant -- ConsulterProfil
+    Etudiant -- ConsulterNotes
+    Etudiant -- ConsulterFiliere
+    Etudiant -- ConsulterModules
+    Etudiant -- ConsulterEmploi
+    Etudiant -- ConsulterInscription
+
+    ' Relations d'inclusion
+    Authenticate <. ConsulterProfil : include
+    Authenticate <. ConsulterNotes : include
+    Authenticate <. ConsulterFiliere : include
+    Authenticate <. ConsulterModules : include
+    Authenticate <. ConsulterEmploi : include
+    Authenticate <. ConsulterInscription : include
+}
+@enduml 

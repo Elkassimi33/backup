@@ -1,0 +1,727 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' Services Interfaces
+interface AdminService {
+    + addEtudiant(email: String, nom: String, prenom: String, filiereId: Integer, semester: Module.Semester): User
+    + addEnseignant(email: String, nom: String, prenom: String, departementNom: String, statut: Enseignant.StatutEnseignant, grade: String, specialite: String, isFiliereChef: Boolean): User
+    + addAdmin(email: String, nom: String, prenom: String, specialite: String, grade: String): User
+    + updateAdmin(adminId: Integer, adminDto: AdminDto): AdminDto
+    + getAllAdmins(): List<AdminDto>
+    + getAdminBYUserId(userId: Integer): AdminDto
+}
+
+interface AnneeUniversitaireService {
+    + createAnneeUniversitaire(anneeUniversitaire: AnneeUniversitaire): AnneeUniversitaire
+    + updateAnneeUniversitaire(anneeId: Integer, anneeUniversitaire: AnneeUniversitaire): AnneeUniversitaire
+    + deleteAnneeUniversitaire(anneeId: Integer): void
+    + getAnneeUniversitaireById(anneeId: Integer): AnneeUniversitaire
+    + getAllAnneesUniversitaires(): List<AnneeUniversitaire>
+    + getCurrentAnneeUniversitaire(): AnneeUniversitaire
+    + setCurrentAnneeUniversitaire(anneeId: Integer): void
+}
+
+interface AttendanceService {
+    + markAttendance(studentId: Integer, moduleId: Long, emploiDuTempsId: Long, present: boolean, justification: String): Attendance
+    + getStudentAttendance(studentId: Integer): List<Attendance>
+    + getStudentAttendanceByDateRange(studentId: Integer, startDate: LocalDate, endDate: LocalDate): List<Attendance>
+    + getModuleAttendance(moduleId: Long, date: LocalDate): List<Attendance>
+    + getStudentAttendanceRate(studentId: Integer): double
+}
+
+interface ChefFiliereService {
+    + getManagedFilieres(enseignantId: Integer): List<Filiere>
+    + getFiliereStudents(filiereId: Integer): List<EtudiantDto>
+    + getModuleGradeStatistics(moduleId: Long): GradeStatistics
+    + getFiliereModules(filiereId: Integer): List<Module>
+    + getModuleGrades(moduleId: Long): List<noteDto>
+    + validateGrade(noteId: Integer, validated: boolean): void
+    + getFiliereStudentStatistics(filiereId: Integer): List<StudentStatistics>
+    + getFailedStudents(filiereId: Integer): List<EtudiantDto>
+    + getAtRiskStudents(filiereId: Integer): List<EtudiantDto>
+    + getModulesWithDisplayStatus(filiereId: Integer): List<ModuleDisplayStatusDto>
+}
+
+interface DepartementService {
+    + createDepartement(departementDto: DepartementDto): DepartementDto
+    + updateDepartement(departementId: Integer, departementDto: DepartementDto): DepartementDto
+    + deleteDepartement(departementId: Integer): void
+    + getDepartementById(departementId: Integer): DepartementDto
+    + getAllDepartements(): List<DepartementDto>
+    + getDepartementByNom(nom: String): DepartementDto
+}
+
+interface EmploiDuTempsService {
+    + createEmploiDuTemps(dto: EmploiDuTempsDto): EmploiDuTempsDto
+    + updateEmploiDuTemps(id: Long, dto: EmploiDuTempsDto): EmploiDuTempsDto
+    + deleteEmploiDuTemps(id: Long): void
+    + getEmploiDuTempsByModule(moduleId: Long): List<EmploiDuTempsDto>
+    + getEmploiDuTempsBySalle(salleId: Integer): List<EmploiDuTempsDto>
+    + getEmploiDuTempsByJour(jour: DayOfWeek): List<EmploiDuTempsDto>
+}
+
+interface EnseignantService {
+    + getEnseignantByUserId(userId: Integer): EnseignantDto
+    + updateEnseignant(enseignantId: Integer, enseignantDto: EnseignantDto, file: MultipartFile): EnseignantDto
+    + modulesTaughtThisYear(enseignantId: Integer): List<Module>
+    + getDepartementEnseignant(departementNam: String): List<EnseignantDto>
+    + findByStatut(statut: Enseignant.StatutEnseignant): List<EnseignantDto>
+    + findBySpecialiteContainingIgnoreCase(specialite: String): List<EnseignantDto>
+    + getAllEnseignants(): List<EnseignantDto>
+}
+
+interface EtudianService {
+    + getEtudiant(userId: Integer): EtudiantDto
+    + getAllFiliereEtudiant(filiereId: Integer): List<EtudiantDto>
+    + updateEtudiant(EtudiantId: Integer, etudiantDto: EtudiantDto, file: MultipartFile): EtudiantDto
+    + getAllEtudiantFiliereWithPagination(pageNumber: Integer, pageSize: Integer, filiereId: Integer): EtudiantPageResponse
+    + getAllEtudiantFiliereWithPaginationAndSorting(pageNumber: Integer, pageSize: Integer, sortBy: String, dir: String, filiereId: Integer): EtudiantPageResponse
+    + etudiantsInscrireAuModule(moduleID: Integer, filiereId: Integer, semester: Module.Semester): List<EtudiantNoteDto>
+    + etudiantsByFiliereAndSemestre(filiereNom: String, semester: Module.Semester): List<EtudiantDto>
+    + generateCertificatScolairePdf(userId: Integer): byte[]
+    + generateConvocationExamenPdf(userId: Integer, moduleName: String, dateExamen: String, heureExamen: String, salle: String): byte[]
+}
+
+interface FiliereService {
+    + createFiliere(filiereDTO: FiliereDTO): FiliereResponseDTO
+    + getFiliereById(id: Integer): Optional<FiliereResponseDTO>
+    + getAllFilieres(): List<FiliereResponseDTO>
+    + updateFiliere(id: Integer, filiereDTO: FiliereDTO): FiliereResponseDTO
+    + deleteFiliere(id: Integer): void
+    + getFilieresByDepartement(departementNam: String): List<FiliereResponseDTO>
+    + getFilieresByNiveau(niveau: Filiere.NiveauFiliere): List<FiliereResponseDTO>
+    + getActiveFilieres(): List<FiliereResponseDTO>
+    + assignChefFiliere(filiereId: Integer, enseignantId: Integer): FiliereResponseDTO
+    + removeChefFiliere(filiereId: Integer): FiliereResponseDTO
+    + addModule(filiereId: Integer, moduleDTO: ModuleDto): FiliereResponseDTO
+    + removeModule(filiereId: Integer, moduleId: Integer): FiliereResponseDTO
+    + activateFiliere(id: Integer): FiliereResponseDTO
+    + deactivateFiliere(id: Integer): FiliereResponseDTO
+    + getFiliereByEnseignantId(enseignantId: Integer): List<FiliereDTO>
+}
+
+interface FileService {
+    + uploadFile(path: String, file: MultipartFile, id: String): String
+    + getResourceFile(path: String, fileName: String): InputStream
+}
+
+interface InscriptionService {
+    + createInscription(etudiantId: Integer, anneeId: Integer, filiereId: Integer): Inscription
+    + getInscription(etudiantId: Integer, anneeId: Integer): Inscription
+    + getStudentInscriptions(etudiantId: Integer): List<Inscription>
+    + getYearInscriptions(anneeId: Integer): List<Inscription>
+    + isStudentEnrolled(etudiantId: Integer, anneeId: Integer): boolean
+}
+
+interface ModuleSevice {
+    + insertModule(moduleDto: ModuleDto): void
+    + insertModules(moduleDtos: List<ModuleDto>): void
+    + updateModule(moduleId: Long, moduleDto: ModuleDto): ModuleDto
+    + getModulesById(moduleId: Long): ModuleDto
+    + deleteModule(moduleId: Long): void
+    + getModulesByEnseignant(enseignantId: Integer): List<ModuleDto>
+    + getModulesByDepartement(departementId: Integer): List<ModuleDto>
+    + getModulesByFiliere(filiereId: Integer): List<ModuleDto>
+    + getAllModules(): List<ModuleDto>
+}
+
+interface NoteService {
+    + insertNotes(noteList: List<EtudiantNoteDto>, idModule: Long, idEnseignant: Integer, idFiliere: Integer, typeExamen: Note.TypeExamen): void
+    + getEtudiantNotesByYear(idEtudiant: Integer): List<Note>
+    + getModuleGradeStatistics(moduleId: Long): GradeStatistics
+    + getStudentGradeHistory(studentId: Integer, moduleId: Long): List<GradeHistory>
+    + validateAndCorrectGrade(note: Note): Note
+    + getStudentGPA(studentId: Integer, semester: Module.Semester): double
+    + getStudentStatistics(studentId: Integer): StudentStatistics
+    + getStudentModuleNotes(studentId: Integer, moduleId: Long): List<noteDto>
+    + calculateStudentGPA(studentId: Integer, semester: Module.Semester): double
+    + getModuleNotes(moduleId: Long): List<noteDto>
+    + updateNote(noteId: Integer, newGrade: double): void
+    + deleteNote(noteId: Integer): void
+    + getStudentFailedModules(studentId: Integer): List<NoteFinal>
+    + getStudentPassedModules(studentId: Integer): List<NoteFinal>
+    + getEtudiantNote(studentId: Integer): Map<String, Map<String, Double>>
+    + updateStudentStatus(studentId: Integer): void
+}
+
+interface SalleService {
+    + createSalle(salleDto: SalleDto): Salle
+    + updateSalle(salleId: Integer, salleDto: SalleDto): Salle
+    + deleteSalle(salleId: Integer): void
+    + getSalleById(salleId: Integer): Salle
+    + getAllSalles(): List<Salle>
+    + getAvailableSallesByCapacity(capacity: Integer): List<Salle>
+}
+
+interface AuthService
+
+' Service Implementations
+class AdminServiceImpl {
+    - userRepository: UserRepository
+    - roleRepository: RoleRepository
+    - etudiantRepository: EtudiantRepository
+    - enseignantRepository: EnseignantRepository
+    - adminRepository: AdminRepository
+    - passwordEncoder: PasswordEncoder
+    - mailSender: JavaMailSender
+    - filiereRepository: FiliereRepository
+    - departementRepository: DepartementRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    + addEtudiant(email: String, nom: String, prenom: String, filiereId: Integer, semester: Module.Semester): User
+    + addEnseignant(email: String, nom: String, prenom: String, departementNom: String, statut: Enseignant.StatutEnseignant, grade: String, specialite: String, isFiliereChef: Boolean): User
+    + addAdmin(email: String, nom: String, prenom: String, specialite: String, grade: String): User
+    + getAllAdmins(): List<AdminDto>
+    + getAdminBYUserId(userId: Integer): AdminDto
+    + updateAdmin(adminId: Integer, adminDto: AdminDto): AdminDto
+    - generateUsername(nom: String, prenom: String): String
+    - generatePassword(): String
+    - generateUniversityEmail(username: String): String
+    - sendCredentialsEmail(email: String, username: String, password: String, universityEmail: String): void
+}
+
+class AnneeUniversitaireServiceImpl {
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    + createAnneeUniversitaire(anneeUniversitaire: AnneeUniversitaire): AnneeUniversitaire
+    + updateAnneeUniversitaire(anneeId: Integer, anneeUniversitaire: AnneeUniversitaire): AnneeUniversitaire
+    + deleteAnneeUniversitaire(anneeId: Integer): void
+    + getAnneeUniversitaireById(anneeId: Integer): AnneeUniversitaire
+    + getAllAnneesUniversitaires(): List<AnneeUniversitaire>
+    + getCurrentAnneeUniversitaire(): AnneeUniversitaire
+    + setCurrentAnneeUniversitaire(anneeId: Integer): void
+}
+
+class AttendanceServiceImpl {
+    - attendanceRepository: AttendanceRepository
+    - etudiantRepository: EtudiantRepository
+    - moduleRepository: ModuleRepository
+    - emploiDuTempsRepository: EmploiDuTempsRepository
+    + markAttendance(studentId: Integer, moduleId: Long, emploiDuTempsId: Long, present: boolean, justification: String): Attendance
+    + getStudentAttendance(studentId: Integer): List<Attendance>
+    + getStudentAttendanceByDateRange(studentId: Integer, startDate: LocalDate, endDate: LocalDate): List<Attendance>
+    + getModuleAttendance(moduleId: Long, date: LocalDate): List<Attendance>
+    + getStudentAttendanceRate(studentId: Integer): double
+}
+
+class ChefFiliereServiceImpl {
+    - filiereRepository: FiliereRepository
+    - etudiantRepository: EtudiantRepository
+    - moduleRepository: ModuleRepository
+    - noteRepository: NoteRepository
+    - noteService: NoteService
+    - etudiantService: EtudianService
+    - moduleAffichRepository: ModuleAffichRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    + getManagedFilieres(enseignantId: Integer): List<Filiere>
+    + getFiliereStudents(filiereId: Integer): List<EtudiantDto>
+    + getModuleGradeStatistics(moduleId: Long): GradeStatistics
+    + getFiliereModules(filiereId: Integer): List<Module>
+    + getModuleGrades(moduleId: Long): List<noteDto>
+    + validateGrade(noteId: Integer, validated: boolean): void
+    + getFiliereStudentStatistics(filiereId: Integer): List<StudentStatistics>
+    + getFailedStudents(filiereId: Integer): List<EtudiantDto>
+    + getAtRiskStudents(filiereId: Integer): List<EtudiantDto>
+    + getModulesWithDisplayStatus(filiereId: Integer): List<ModuleDisplayStatusDto>
+}
+
+class DepartementServiceImpl {
+    - departementRepository: DepartementRepository
+    - enseignantRepository: EnseignantRepository
+    - filiereRepository: FiliereRepository
+    - userRepository: UserRepository
+    + createDepartement(departementDto: DepartementDto): DepartementDto
+    + updateDepartement(departementId: Integer, departementDto: DepartementDto): DepartementDto
+    + deleteDepartement(departementId: Integer): void
+    + getDepartementById(departementId: Integer): DepartementDto
+    + getAllDepartements(): List<DepartementDto>
+    + getDepartementByNom(nom: String): DepartementDto
+    - mapToEntity(dto: DepartementDto): Departement
+    - mapToDto(departement: Departement): DepartementDto
+}
+
+class EmploiDuTempsServiceImpl {
+    - emploiDuTempsRepository: EmploiDuTempsRepository
+    - moduleRepository: ModuleRepository
+    - salleRepository: SalleRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    + createEmploiDuTemps(dto: EmploiDuTempsDto): EmploiDuTempsDto
+    + updateEmploiDuTemps(id: Long, dto: EmploiDuTempsDto): EmploiDuTempsDto
+    + deleteEmploiDuTemps(id: Long): void
+    + getEmploiDuTempsByModule(moduleId: Long): List<EmploiDuTempsDto>
+    + getEmploiDuTempsBySalle(salleId: Integer): List<EmploiDuTempsDto>
+    + getEmploiDuTempsByJour(jour: DayOfWeek): List<EmploiDuTempsDto>
+    - validateSchedule(dto: EmploiDuTempsDto): void
+    - isValidSessionType(type: String): boolean
+    - mapToEntity(dto: EmploiDuTempsDto): EmploiDuTemps
+    - mapToDto(emploiDuTemps: EmploiDuTemps): EmploiDuTempsDto
+    - updateEntity(entity: EmploiDuTemps, dto: EmploiDuTempsDto): void
+}
+
+class EnseignantServiceImpl {
+    - enseignantRepository: EnseignantRepository
+    - fileService: FileService
+    - departementRepository: DepartementRepository
+    - userRepository: UserRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    - moduleRepository: ModuleRepository
+    - filiereRepository: FiliereRepository
+    - path: String
+    - baseUrl: String
+    + getEnseignantByUserId(userId: Integer): EnseignantDto
+    + updateEnseignant(enseignantId: Integer, enseignantDto: EnseignantDto, file: MultipartFile): EnseignantDto
+    + modulesTaughtThisYear(enseignantId: Integer): List<Module>
+    + getDepartementEnseignant(departementNam: String): List<EnseignantDto>
+    + findByStatut(statut: Enseignant.StatutEnseignant): List<EnseignantDto>
+    + findBySpecialiteContainingIgnoreCase(specialite: String): List<EnseignantDto>
+    + getAllEnseignants(): List<EnseignantDto>
+    + filiereDerige(enseingantId: Integer): List<Filiere>
+    - mapToEnseignantDto(enseignant: Enseignant): EnseignantDto
+}
+
+class EtudiantServiceImpl {
+    - etudiantRepository: EtudiantRepository
+    - fileService: FileService
+    - userRepository: UserRepository
+    - filiereRepository: FiliereRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    - path: String
+    - baseUrl: String
+    + getEtudiant(userId: Integer): EtudiantDto
+    + getAllFiliereEtudiant(filiereId: Integer): List<EtudiantDto>
+    + updateEtudiant(codeApj: Integer, etudiantDto: EtudiantDto, file: MultipartFile): EtudiantDto
+    + getAllEtudiantFiliereWithPagination(pageNumber: Integer, pageSize: Integer, filiereId: Integer): EtudiantPageResponse
+    + getAllEtudiantFiliereWithPaginationAndSorting(pageNumber: Integer, pageSize: Integer, sortBy: String, dir: String, filiereId: Integer): EtudiantPageResponse
+    + etudiantsInscrireAuModule(moduleID: Integer, filiereId: Integer, semester: Module.Semester): List<EtudiantNoteDto>
+    + etudiantsByFiliereAndSemestre(filiereNom: String, semester: Module.Semester): List<EtudiantDto>
+    + generateCertificatScolairePdf(codeApj: Integer): byte[]
+    + generateConvocationExamenPdf(userId: Integer, moduleName: String, dateExamen: String, heureExamen: String, salle: String): byte[]
+    - mapToEtudiantDto(etudiant: Etudiant): EtudiantDto
+    - createBoldLabel(label: String, boldFont: Font): String
+    - formatStudentName(nom: String, prenom: String): String
+    - capitalizeWords(input: String): String
+    - formatDate(date: java.time.LocalDate): String
+    - buildAcademicInfo(etudiant: Etudiant): String
+    - getAcademicYearString(anneeUniversitaire: AnneeUniversitaire): String
+    - formatSemester(semester: Module.Semester): String
+}
+
+class FiliereServiceImpl {
+    - filiereRepository: FiliereRepository
+    - departementRepository: DepartementRepository
+    - enseignantRepository: EnseignantRepository
+    - moduleRepository: ModuleRepository
+    + createFiliere(filiereDTO: FiliereDTO): FiliereResponseDTO
+    + getFiliereById(id: Integer): Optional<FiliereResponseDTO>
+    + getAllFilieres(): List<FiliereResponseDTO>
+    + updateFiliere(id: Integer, filiereDTO: FiliereDTO): FiliereResponseDTO
+    + deleteFiliere(id: Integer): void
+    + getFilieresByDepartement(departementNam: String): List<FiliereResponseDTO>
+    + getFilieresByNiveau(niveau: Filiere.NiveauFiliere): List<FiliereResponseDTO>
+    + getActiveFilieres(): List<FiliereResponseDTO>
+    + assignChefFiliere(filiereId: Integer, enseignantId: Integer): FiliereResponseDTO
+    + removeChefFiliere(filiereId: Integer): FiliereResponseDTO
+    + addModule(filiereId: Integer, moduleDTO: ModuleDto): FiliereResponseDTO
+    + removeModule(filiereId: Integer, moduleId: Integer): FiliereResponseDTO
+    + activateFiliere(id: Integer): FiliereResponseDTO
+    + deactivateFiliere(id: Integer): FiliereResponseDTO
+    + getFiliereByEnseignantId(enseignantId: Integer): List<FiliereDTO>
+    - mapToResponseDTO(filiere: Filiere): FiliereResponseDTO
+    - mapDepartementToDTO(departement: Departement): DepartementDto
+    - mapEnseignantToDTO(enseignant: Enseignant): EnseignantDto
+    - mapModuleToDTO(module: Module): ModuleDto
+    - mapModuleDTOToEntity(dto: ModuleDto): Module
+}
+
+class FileServiceImp {
+    + uploadFile(path: String, file: MultipartFile, id: String): String
+    + getResourceFile(path: String, fileName: String): InputStream
+}
+
+class InscriptionServiceImpl {
+    - inscriptionRepository: InscriptionRepository
+    - etudiantRepository: EtudiantRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    - filiereRepository: FiliereRepository
+    - filiereSemesterRepository: FiliereSemesterRepository
+    + createInscription(etudiantId: Integer, anneeId: Integer, filiereId: Integer): Inscription
+    + getInscription(etudiantId: Integer, anneeId: Integer): Inscription
+    + getStudentInscriptions(etudiantId: Integer): List<Inscription>
+    + getYearInscriptions(anneeId: Integer): List<Inscription>
+    + isStudentEnrolled(etudiantId: Integer, anneeId: Integer): boolean
+    - updateStudentForNewFiliere(etudiant: Etudiant, filiereId: Integer): void
+}
+
+class ModuleSeviceImpl {
+    - moduleRepository: ModuleRepository
+    - filiereRepository: FiliereRepository
+    - enseignantRepository: EnseignantRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    - departementRepository: DepartementRepository
+    + insertModule(moduleDto: ModuleDto): void
+    + insertModules(moduleDtos: List<ModuleDto>): void
+    + updateModule(moduleId: Long, moduleDto: ModuleDto): ModuleDto
+    + getModulesById(moduleId: Long): ModuleDto
+    + deleteModule(moduleId: Long): void
+    + getModulesByEnseignant(enseignantId: Integer): List<ModuleDto>
+    + getModulesByDepartement(departementId: Integer): List<ModuleDto>
+    + getModulesByFiliere(filiereId: Integer): List<ModuleDto>
+    + getAllModules(): List<ModuleDto>
+    - mapToModule(moduleDto: ModuleDto): Module
+    - mapToDto(module: Module): ModuleDto
+}
+
+class NoteServiceImpl {
+    - EXAM_WEIGHT: double
+    - TP_WEIGHT: double
+    - PASSING_GRADE: double
+    - MIN_GRADE: double
+    - MAX_GRADE: double
+    - SUSPICIOUS_GRADE_THRESHOLD: double
+    - STANDARD_DEVIATION_MULTIPLIER: double
+    - moduleRepository: ModuleRepository
+    - anneeUniversitaireRepository: AnneeUniversitaireRepository
+    - noteRepository: NoteRepository
+    - noteFinalRepository: NoteFinalRepository
+    - enseignantRepository: EnseignantRepository
+    - filiereRepository: FiliereRepository
+    - etudiantRepository: EtudiantRepository
+    - moduleAffichRepository: ModuleAffichRepository
+    - semesterNoteRepository: SemesterNoteRepository
+    - mailSender: JavaMailSender
+    - filiereSemesterRepository: FiliereSemesterRepository
+    - attendanceService: AttendanceService
+    + insertNotes(noteList: List<EtudiantNoteDto>, idModule: Long, idEnseignant: Integer, idFiliere: Integer, typeExamen: Note.TypeExamen): void
+    + getEtudiantNotesByYear(idEtudiant: Integer): List<Note>
+    + getModuleGradeStatistics(moduleId: Long): GradeStatistics
+    + getStudentGradeHistory(studentId: Integer, moduleId: Long): List<GradeHistory>
+    + validateAndCorrectGrade(note: Note): Note
+    + getStudentGPA(studentId: Integer, semester: Module.Semester): double
+    + getStudentStatistics(studentId: Integer): StudentStatistics
+    + getStudentModuleNotes(studentId: Integer, moduleId: Long): List<noteDto>
+    + calculateStudentGPA(studentId: Integer, semester: Module.Semester): double
+    + getModuleNotes(moduleId: Long): List<noteDto>
+    + updateNote(noteId: Integer, newGrade: double): void
+    + deleteNote(noteId: Integer): void
+    + getStudentFailedModules(studentId: Integer): List<NoteFinal>
+    + getStudentPassedModules(studentId: Integer): List<NoteFinal>
+    + getEtudiantNote(studentId: Integer): Map<String, Map<String, Double>>
+    + updateStudentStatus(studentId: Integer): void
+    - validateInsertNotesParameters(noteList: List<EtudiantNoteDto>, idModule: Long, idEnseignant: Integer, idFiliere: Integer, typeExamen: Note.TypeExamen): void
+    - validateNoteDto(noteDto: EtudiantNoteDto): void
+    - fetchRequiredEntities(idModule: Long, idEnseignant: Integer, idFiliere: Integer): EntityContainer
+    - processNotesByExamType(noteList: List<EtudiantNoteDto>, entities: EntityContainer, typeExamen: Note.TypeExamen): NoteProcessingResult
+    - processNormalExamNotes(noteList: List<EtudiantNoteDto>, entities: EntityContainer): NoteProcessingResult
+    - processNormalExamWithoutTp(noteDto: EtudiantNoteDto, entities: EntityContainer, notesToSave: List<Note>, finalGradesToSave: List<NoteFinal>): void
+    - processNormalExamWithTp(noteDto: EtudiantNoteDto, entities: EntityContainer, notesToSave: List<Note>, finalGradesToSave: List<NoteFinal>): void
+    - processRattrapageExamNotes(noteList: List<EtudiantNoteDto>, entities: EntityContainer): NoteProcessingResult
+    - processFailedRattrapageNote(note: Note, noteDto: EtudiantNoteDto, entities: EntityContainer, finalGradesToSave: List<NoteFinal>): void
+    - saveNotesInBatch(result: NoteProcessingResult): void
+    - determineGradeStatus(grade: double): NoteFinal.StatutNote
+    - calculateWeightedAverage(examGrade: double, tpGrade: double): double
+    - calculateNormalGrade(notes: List<Note>, module: Module): double
+    - createNote(enseignant: Enseignant, noteDto: EtudiantNoteDto, module: Module, filiere: Filiere, noteValue: double, anneeUniversitaire: AnneeUniversitaire, typeExamen: Note.TypeExamen, isTp: boolean, status: NoteFinal.StatutNote): Note
+    - createNoteFinal(note: Note): NoteFinal
+    - validateGradeRange(grade: double): void
+    - isSuspiciousGrade(note: Note): boolean
+    - validateSuspiciousGrade(note: Note): double
+    - calculateStandardDeviation(notes: List<Note>, mean: double): double
+    - sendNoteNotifications(notes: List<Note>, module: Module): void
+    - mapTNoteDto(note: Note): noteDto
+}
+
+class SalleServiceImpl {
+    - salleRepository: SalleRepository
+    + createSalle(salleDto: SalleDto): Salle
+    + updateSalle(salleId: Integer, salleDto: SalleDto): Salle
+    + deleteSalle(salleId: Integer): void
+    + getSalleById(salleId: Integer): Salle
+    + getAllSalles(): List<Salle>
+    + getAvailableSallesByCapacity(capacity: Integer): List<Salle>
+}
+
+class AuthServiceImpl
+
+' Repositories Interfaces
+interface AdminRepository {
+    + findByTelephone(telephone: String): Optional<Admin>
+    + findByUser_Id(userId: Integer): Optional<Admin>
+    + findByUser_Email(email: String): Optional<Admin>
+    + findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase(searchTerm: String, searchTerm2: String): List<Admin>
+}
+
+interface AnneeUniversitaireRepository {
+    + findByAnnee(annee: String): Optional<AnneeUniversitaire>
+    + findByAnneeCouranteIsTrue(): Optional<AnneeUniversitaire>
+    + existsByAnnee(annee: String): boolean
+    + countByAnneeCouranteIsTrue(): long
+}
+
+interface AttendanceRepository {
+    + findByEtudiant_CodeApj(studentId: Integer): List<Attendance>
+    + countByEtudiant_CodeApj(studentId: Integer): long
+    + countByEtudiant_CodeApjAndPresentTrue(studentId: Integer): long
+    + findByEtudiant_CodeApjAndDateBetween(studentId: Integer, startDate: LocalDate, endDate: LocalDate): List<Attendance>
+    + findByModule_IdModuleAndDate(moduleId: Long, date: LocalDate): List<Attendance>
+}
+
+interface DepartementRepository {
+    + findByNom(nom: String): Optional<Departement>
+    + findByNomContainingIgnoreCase(searchTerm: String): List<Departement>
+    + findByResponsable_Id(responsableId: Integer): Optional<Departement>
+    + existsByNom(nom: String): boolean
+}
+
+interface EmploiDuTempsRepository {
+    + findByModule_IdModuleAndAnneeUniversitaire_AnneeId(moduleId: Long, anneeUniversitaireId: Integer): List<EmploiDuTemps>
+    + findBySalle_IdAndAnneeUniversitaire_AnneeId(salleId: Integer, anneeUniversitaireId: Integer): List<EmploiDuTemps>
+    + findByJourAndAnneeUniversitaire_AnneeId(jour: DayOfWeek, anneeUniversitaireId: Integer): List<EmploiDuTemps>
+    + findBySalleAndJourAndHeureDebutLessThanEqualAndHeureFinGreaterThanEqual(salle: Salle, jour: DayOfWeek, heureFin: LocalTime, heureDebut: LocalTime): List<EmploiDuTemps>
+}
+
+interface EnseignantRepository {
+    + findByTelephone(telephone: String): Optional<Enseignant>
+    + findByUser_Id(userId: Integer): Optional<Enseignant>
+    + findByUser_Email(email: String): Optional<Enseignant>
+    + findByDepartement_DepartementId(departementId: Integer): List<Enseignant>
+    + findByStatut(statut: Enseignant.StatutEnseignant): List<Enseignant>
+    + findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase(searchTerm: String, searchTerm2: String): List<Enseignant>
+    + findBySpecialiteContainingIgnoreCase(specialite: String): List<Enseignant>
+    + countByDepartement_DepartementId(departementId: Integer): long
+}
+
+interface EtudiantRepository {
+    + findByCne(cne: String): Optional<Etudiant>
+    + findByUserId_Id(userId: Integer): Optional<Etudiant>
+    + findByUserId_Email(email: String): Optional<Etudiant>
+    + findByFiliereID_FiliereId(filiereId: Integer): List<Etudiant>
+    + findByFiliereID_FiliereId(filiereId: Integer, pageable: Pageable): Page<Etudiant>
+    + findByAnneeActuelle(annee: Integer): List<Etudiant>
+    + findByStatut(statut: StatutEtudiant): List<Etudiant>
+    + findByStatutAndSemester(statut: StatutEtudiant, semester: Module.Semester): List<Etudiant>
+    + findBySemester(semester: Module.Semester): List<Etudiant>
+    + findBySemesterAndAnneeUniversitaire_AnneeId(semester: Module.Semester, anneeUniversitaireId: Integer): List<Etudiant>
+    + findByFiliereID_FiliereIdAndAnneeUniversitaire_AnneeId(filiereID: Integer, anneeUniversitaireId: Integer): List<Etudiant>
+    + findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase(searchTerm: String, searchTerm2: String): List<Etudiant>
+    + findByAnneeUniversitaire_AnneeId(anneeUniversitaireId: Integer): List<Etudiant>
+    + findNormalOrRepeatingStudentsInFiliereAndSemester(idFiliere: Integer, semester: Module.Semester): List<Etudiant>
+    + findByFiliereID_FiliereIdAndStatutAndAnneeUniversitaire_AnneeIdAndSemester(filierId: Integer, statutEtudiant: StatutEtudiant, anneeId: Integer, semester: Module.Semester): List<Etudiant>
+    + findReserveOrPartialRepeatingStudentsInFiliereAndModule(idFiliere: Integer, idModule: Integer): List<Etudiant>
+    + findByDateNaissanceBetween(startDate: LocalDate, endDate: LocalDate): List<Etudiant>
+    + countByFiliereID_FiliereIdAndStatut(filiereId: Integer, statut: StatutEtudiant): long
+    + existsByCne(cne: String): boolean
+    + findByFiliereID_FiliereIdAndAnneeUniversitaire_AnneeIdAndSemester(filiereId: Integer, anneeId: Integer, semester: Module.Semester): List<Etudiant>
+}
+
+interface FiliereRepository {
+    + findByNom(nom: String): Optional<Filiere>
+    + findByNomContainingIgnoreCase(searchTerm: String): List<Filiere>
+    + findByNiveau(niveau: Filiere.NiveauFiliere): List<Filiere>
+    + findByDepartement_DepartementId(departementId: Integer): List<Filiere>
+    + findByChefFiliere_EnseignantId(enseignantId: Integer): List<Filiere>
+    + findByActive(active: Boolean): List<Filiere>
+    + existsByNomAndNiveauAndDepartement_DepartementId(nom: String, niveau: Filiere.NiveauFiliere, departementId: Integer): boolean
+    + findByDureeEtudes(dureeEtudes: Integer): List<Filiere>
+    + countByDepartement_DepartementId(departementId: Integer): long
+    + findByActiveTrue(): List<Filiere>
+}
+
+interface FiliereSemesterRepository {
+    + findByFiliere_FiliereIdAndSemester(filiereId: Integer, semester: Module.Semester): Optional<FiliereSemester>
+    + findByFiliere_FiliereIdAndIsFirstSemesterTrue(filiereId: Integer): Optional<FiliereSemester>
+}
+
+interface InscriptionRepository {
+    + findByEtudiant_CodeApjAndAnneeUniversitaire_AnneeId(codeApj: Integer, anneeId: Integer): Optional<Inscription>
+    + findByEtudiant_CodeApj(codeApj: Integer): List<Inscription>
+    + findByFiliere_FiliereIdAndAnneeUniversitaire_AnneeId(filiereId: Integer, anneeUniversitaireId: Integer): List<Inscription>
+    + findByAnneeUniversitaire_AnneeId(anneeId: Integer): List<Inscription>
+    + findByStatut(statut: Inscription.StatutInscription): List<Inscription>
+    + countByFiliere_FiliereIdAndAnneeUniversitaire_AnneeId(filiereId: Integer, anneeUniversitaireId: Integer): long
+    + existsByEtudiant_CodeApjAndAnneeUniversitaire_AnneeId(codeApj: Integer, anneeId: Integer): boolean
+}
+
+interface ModuleAffichRepository {
+    + ModuleAfficheNormal(anneeId: Integer): List<Long>
+    + ModuleAfficheRatt(anneeId: Integer): List<Long>
+}
+
+interface ModuleRepository {
+    + findByCodeModule(codeModule: String): Optional<Module>
+    + findByNomModuleContainingIgnoreCase(nomModule: String): List<Module>
+    + findByFiliere_FiliereId(filiereId: Integer): List<Module>
+    + findByEnseignant_EnseignantId(enseignantId: Integer): List<Module>
+    + findByAnneeUniversitaire_AnneeIdAndEnseignant_EnseignantId(anneeUniversitaireId: Integer, enseignantId: Integer): List<Module>
+    + findBySemester(semester: Module.Semester): List<Module>
+    + findByAnneeUniversitaire_AnneeIdAndFiliere_FiliereId(anneeId: Integer, filiereId: Integer): List<Module>
+    + findByAnneeUniversitaire_AnneeIdAndEnseignant_EnseignantIdIn(anneeId: Integer, enseignantIds: List<Integer>): List<Module>
+    + findByAnneeUniversitaire_AnneeId(anneeUniversitaireId: Integer): List<Module>
+    + findByHasTp(hasTp: boolean): List<Module>
+    + findBySemesterAndFiliere_FiliereId(semester: Module.Semester, filiereId: Integer): List<Module>
+    + findBySemesterAndFiliere_FiliereIdAndAnneeUniversitaire_AnneeId(semester: Module.Semester, filiereId: Integer, anneeId: Integer): List<Module>
+    + existsByCodeModule(codeModule: String): boolean
+}
+
+interface NoteFinalRepository {
+    + findByEtudiant_CodeApjAndModule_IdModuleAndSemesterAndAnneeUniversitaire_AnneeId(etudiantId: Integer, moduleId: Long, semester: Module.Semester, anneeUniversitaireId: Integer): Optional<NoteFinal>
+    + findByEtudiant_CodeApj(etudiantId: Integer): List<NoteFinal>
+    + findByEnseignant_EnseignantId(enseignantId: Integer): List<NoteFinal>
+    + findByModule_IdModule(moduleId: Long): List<NoteFinal>
+    + findByModule_IdModuleAndAnneeUniversitaire_AnneeId(moduleId: Long, anneeUniversitaireId: Integer): List<NoteFinal>
+    + findByModule_IdModuleAndEtudiant_CodeApj(moduleId: Long, etudiantId: Integer): List<NoteFinal>
+    + findBySemester(semester: Module.Semester): List<NoteFinal>
+    + findByAnneeUniversitaire_AnneeId(anneeUniversitaireId: Integer): List<NoteFinal>
+    + findByStatut(statut: StatutNote): List<NoteFinal>
+    + calculateAverageByEtudiantAndSemesterAndAnneeUniversitaire(etudiantId: Integer, semester: Module.Semester, anneeUniversitaireId: Integer): Double
+    + countValidatedModulesByEtudiantAndSemesterAndAnneeUniversitaire(etudiantId: Integer, semester: Module.Semester, anneeUniversitaireId: Integer): Long
+    + findByEtudiant_CodeApjAndSemester(codeApj: Integer, semester: Module.Semester): List<NoteFinal>
+    + findByEtudiant_CodeApjAndStatut(studentId: Integer, statutNote: StatutNote): List<NoteFinal>
+    + findByEtudiant_CodeApjAndStatutAndAnneeUniversitaire_AnneeId(codeApj: Integer, statut: StatutNote, anneeId: Integer): List<NoteFinal>
+    + findByEtudiant_CodeApjAndModule_IdModuleAndStatutAndAnneeUniversitaire_AnneeId(studentId: Integer, moduleId: Long, statut: NoteFinal.StatutNote, anneeId: Integer): List<NoteFinal>
+    + findByEtudiant_CodeApjAndModule_IdModuleAndStatut(studentId: Integer, moduleId: Long, statut: NoteFinal.StatutNote): List<NoteFinal>
+    + countByEtudiant_CodeApjAndStatutInAndAnneeUniversitaire_AnneeId(codeApj: Integer, statuts: List<NoteFinal.StatutNote>, anneeId: Integer): long
+}
+
+interface NoteRepository {
+    + findByEtudiant_CodeApj(etudiantId: Integer): List<Note>
+    + findByEnseignant_EnseignantId(enseignantId: Integer): List<Note>
+    + findByModule_IdModule(moduleId: Long): List<Note>
+    + findBySemester(semester: Module.Semester): List<Note>
+    + findByAnneeUniversitaire_AnneeId(anneeUniversitaireId: Integer): List<Note>
+    + findByTypeExamen(typeExamen: TypeExamen): List<Note>
+    + findByEtudiant_CodeApjAndModule_IdModuleAndSemester(etudiantId: Integer, moduleId: Long, semester: Semester): List<Note>
+    + findByEtudiant_CodeApjAndModule_IdModuleAndSemesterAndAnneeUniversitaire_AnneeId(etudiantId: Integer, moduleId: Long, semester: Semester, anneeUniversitaireId: Integer): List<Note>
+    + findByEtudiant_CodeApjAndAnneeUniversitaire_AnneeId(etudiantId: Integer, anneeUniversitaireId: Integer): List<Note>
+    + findByEtudiant_CodeApjAndModule_IdModuleOrderByDateNotationDesc(etudiantId: Integer, moduleId: Long): List<Note>
+    + calculateAverageByEtudiantAndModuleAndAnneeUniversitaire(etudiantId: Integer, moduleId: Long, anneeUniversitaireId: Integer): Double
+    + findByModule_IdModuleOrderByDateNotationDesc(moduleId: Long): List<Note>
+    + findByEtudiant_CodeApjAndStatut(codeApj: Integer, statut: NoteFinal.StatutNote): List<Note>
+    + findByModule_IdModuleAndAndAnneeUniversitaire_AnneeIdOrderByDateNotationDesc(moduleId: Long, anneeId: Integer): List<Note>
+    + findNotesByStudentModuleSemesterAndYear(codeApj: Integer, idModule: Long, semester: Semester, anneeId: Integer): List<Note>
+}
+
+interface ProjetRepository
+
+interface SalleRepository {
+    + findByNom(nom: String): Optional<Salle>
+    + findByCodeSalle(codeSalle: String): Optional<Salle>
+    + findByType(type: TypeSalle): List<Salle>
+    + findByEstDisponible(estDisponible: Boolean): List<Salle>
+    + findByDepartement_DepartementId(departementId: Integer): List<Salle>
+    + findByEtage(etage: Integer): List<Salle>
+    + findByBloc(bloc: String): List<Salle>
+    + findByCapaciteGreaterThanEqual(capaciteMin: Integer): List<Salle>
+    + findByTypeAndEstDisponible(type: TypeSalle, estDisponible: Boolean): List<Salle>
+    + findByCapaciteGreaterThanEqualAndEstDisponibleTrue(capacite: Integer): List<Salle>
+}
+
+interface SemesterNoteRepository {
+    + findByEtudiant_CodeApjAndSemesterAndAnneeUniversitaire_AnneeId(studentId: Integer, semester: Module.Semester, anneeId: Integer): Optional<SemesterNote>
+    + existsByEtudiant_CodeApjAndStatut(codeApj: Integer, statut: SemesterNote.StatutSemester): boolean
+}
+
+interface UserRepository
+interface RoleRepository
+interface RefreshTokenRepository
+
+' Service Implementation Relationships (Realization)
+AdminServiceImpl ..|> AdminService
+AnneeUniversitaireServiceImpl ..|> AnneeUniversitaireService
+AttendanceServiceImpl ..|> AttendanceService
+ChefFiliereServiceImpl ..|> ChefFiliereService
+DepartementServiceImpl ..|> DepartementService
+EmploiDuTempsServiceImpl ..|> EmploiDuTempsService
+EnseignantServiceImpl ..|> EnseignantService
+EtudiantServiceImpl ..|> EtudianService
+FiliereServiceImpl ..|> FiliereService
+FileServiceImp ..|> FileService
+InscriptionServiceImpl ..|> InscriptionService
+ModuleSeviceImpl ..|> ModuleSevice
+NoteServiceImpl ..|> NoteService
+SalleServiceImpl ..|> SalleService
+AuthServiceImpl ..|> AuthService
+
+' Service to Repository Dependencies (Usage)
+AdminServiceImpl ..> UserRepository : uses
+AdminServiceImpl ..> RoleRepository : uses
+AdminServiceImpl ..> EtudiantRepository : uses
+AdminServiceImpl ..> EnseignantRepository : uses
+AdminServiceImpl ..> AdminRepository : uses
+AdminServiceImpl ..> FiliereRepository : uses
+AdminServiceImpl ..> DepartementRepository : uses
+AdminServiceImpl ..> AnneeUniversitaireRepository : uses
+
+AnneeUniversitaireServiceImpl ..> AnneeUniversitaireRepository : uses
+
+AttendanceServiceImpl ..> AttendanceRepository : uses
+AttendanceServiceImpl ..> EtudiantRepository : uses
+AttendanceServiceImpl ..> ModuleRepository : uses
+AttendanceServiceImpl ..> EmploiDuTempsRepository : uses
+
+ChefFiliereServiceImpl ..> FiliereRepository : uses
+ChefFiliereServiceImpl ..> EtudiantRepository : uses
+ChefFiliereServiceImpl ..> ModuleRepository : uses
+ChefFiliereServiceImpl ..> NoteRepository : uses
+ChefFiliereServiceImpl ..> NoteService : uses
+ChefFiliereServiceImpl ..> EtudianService : uses
+ChefFiliereServiceImpl ..> ModuleAffichRepository : uses
+ChefFiliereServiceImpl ..> AnneeUniversitaireRepository : uses
+
+DepartementServiceImpl ..> DepartementRepository : uses
+DepartementServiceImpl ..> EnseignantRepository : uses
+DepartementServiceImpl ..> FiliereRepository : uses
+DepartementServiceImpl ..> UserRepository : uses
+
+EmploiDuTempsServiceImpl ..> EmploiDuTempsRepository : uses
+EmploiDuTempsServiceImpl ..> ModuleRepository : uses
+EmploiDuTempsServiceImpl ..> SalleRepository : uses
+EmploiDuTempsServiceImpl ..> AnneeUniversitaireRepository : uses
+
+EnseignantServiceImpl ..> EnseignantRepository : uses
+EnseignantServiceImpl ..> FileService : uses
+EnseignantServiceImpl ..> DepartementRepository : uses
+EnseignantServiceImpl ..> UserRepository : uses
+EnseignantServiceImpl ..> AnneeUniversitaireRepository : uses
+EnseignantServiceImpl ..> ModuleRepository : uses
+EnseignantServiceImpl ..> FiliereRepository : uses
+
+EtudiantServiceImpl ..> EtudiantRepository : uses
+EtudiantServiceImpl ..> FileService : uses
+EtudiantServiceImpl ..> UserRepository : uses
+EtudiantServiceImpl ..> FiliereRepository : uses
+EtudiantServiceImpl ..> AnneeUniversitaireRepository : uses
+
+FiliereServiceImpl ..> FiliereRepository : uses
+FiliereServiceImpl ..> DepartementRepository : uses
+FiliereServiceImpl ..> EnseignantRepository : uses
+FiliereServiceImpl ..> ModuleRepository : uses
+
+InscriptionServiceImpl ..> InscriptionRepository : uses
+InscriptionServiceImpl ..> EtudiantRepository : uses
+InscriptionServiceImpl ..> AnneeUniversitaireRepository : uses
+InscriptionServiceImpl ..> FiliereRepository : uses
+InscriptionServiceImpl ..> FiliereSemesterRepository : uses
+
+ModuleSeviceImpl ..> ModuleRepository : uses
+ModuleSeviceImpl ..> FiliereRepository : uses
+ModuleSeviceImpl ..> EnseignantRepository : uses
+ModuleSeviceImpl ..> AnneeUniversitaireRepository : uses
+ModuleSeviceImpl ..> DepartementRepository : uses
+
+NoteServiceImpl ..> ModuleRepository : uses
+NoteServiceImpl ..> AnneeUniversitaireRepository : uses
+NoteServiceImpl ..> NoteRepository : uses
+NoteServiceImpl ..> NoteFinalRepository : uses
+NoteServiceImpl ..> EnseignantRepository : uses
+NoteServiceImpl ..> FiliereRepository : uses
+NoteServiceImpl ..> EtudiantRepository : uses
+NoteServiceImpl ..> ModuleAffichRepository : uses
+NoteServiceImpl ..> SemesterNoteRepository : uses
+NoteServiceImpl ..> FiliereSemesterRepository : uses
+NoteServiceImpl ..> AttendanceService : uses
+
+SalleServiceImpl ..> SalleRepository : uses
+
+AuthServiceImpl ..> UserRepository : uses
+AuthServiceImpl ..> RoleRepository : uses
+AuthServiceImpl ..> RefreshTokenRepository : uses
+
+@enduml 

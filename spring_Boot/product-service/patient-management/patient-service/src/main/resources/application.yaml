@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: patient
+  datasource:
+    url: jdbc:mysql://localhost:3333/patient_system
+    username: root
+    password: 1111
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      auto-ddl: update
+    properties:
+      hibernate:
+        show-sql: true
+      format_sql: true
+      properties:
+        dialect: org.hibernate.dialect.MySQL8Dialect

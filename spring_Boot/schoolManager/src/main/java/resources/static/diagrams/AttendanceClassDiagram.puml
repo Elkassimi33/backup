@@ -1,0 +1,40 @@
+@startuml
+!pragma layout smetana
+
+interface AttendanceService {
+    + markAttendance(studentId: Integer, moduleId: Long, emploiDuTempsId: Long, present: boolean, justification: String): Attendance
+    + getStudentAttendance(studentId: Integer): List<Attendance>
+    + getStudentAttendanceByDateRange(studentId: Integer, startDate: LocalDate, endDate: LocalDate): List<Attendance>
+    + getModuleAttendance(moduleId: Long, date: LocalDate): List<Attendance>
+    + getStudentAttendanceRate(studentId: Integer): double
+}
+
+class AttendanceServiceImpl {
+    - attendanceRepository: AttendanceRepository
+    - etudiantRepository: EtudiantRepository
+    - moduleRepository: ModuleRepository
+    - emploiDuTempsRepository: EmploiDuTempsRepository
+    + markAttendance(studentId: Integer, moduleId: Long, emploiDuTempsId: Long, present: boolean, justification: String): Attendance
+    + getStudentAttendance(studentId: Integer): List<Attendance>
+    + getStudentAttendanceByDateRange(studentId: Integer, startDate: LocalDate, endDate: LocalDate): List<Attendance>
+    + getModuleAttendance(moduleId: Long, date: LocalDate): List<Attendance>
+    + getStudentAttendanceRate(studentId: Integer): double
+}
+
+interface AttendanceRepository {
+    + findByEtudiant_CodeApj(studentId: Integer): List<Attendance>
+    + countByEtudiant_CodeApj(studentId: Integer): long
+    + countByEtudiant_CodeApjAndPresentTrue(studentId: Integer): long
+    + findByEtudiant_CodeApjAndDateBetween(studentId: Integer, startDate: LocalDate, endDate: LocalDate): List<Attendance>
+    + findByModule_IdModuleAndDate(moduleId: Long, date: LocalDate): List<Attendance>
+}
+
+AttendanceService <|.. AttendanceServiceImpl
+AttendanceServiceImpl ..> AttendanceRepository : uses
+AttendanceServiceImpl ..> EtudiantRepository : uses
+AttendanceServiceImpl ..> ModuleRepository : uses
+AttendanceServiceImpl ..> EmploiDuTempsRepository : uses
+
+AttendanceRepository <|-- JpaRepository
+
+@enduml 
